@@ -13,20 +13,24 @@ export interface Config {
 
 export function loadConfig(): Config {
   return {
-    anthropicApiKey: env("ANTHROPIC_API_KEY"),
-    twitterApiKey: env("TWITTER_API_KEY"),
-    twitterApiSecret: env("TWITTER_API_SECRET"),
-    twitterAccessToken: env("TWITTER_ACCESS_TOKEN"),
-    twitterAccessSecret: env("TWITTER_ACCESS_SECRET"),
-    qiitaApiToken: env("QIITA_API_TOKEN"),
+    anthropicApiKey: optEnv("ANTHROPIC_API_KEY"),
+    twitterApiKey: optEnv("TWITTER_API_KEY"),
+    twitterApiSecret: optEnv("TWITTER_API_SECRET"),
+    twitterAccessToken: optEnv("TWITTER_ACCESS_TOKEN"),
+    twitterAccessSecret: optEnv("TWITTER_ACCESS_SECRET"),
+    qiitaApiToken: optEnv("QIITA_API_TOKEN"),
     siteUrl: process.env.SITE_URL || "https://mcw999.github.io",
   };
 }
 
-function env(key: string): string {
+export function requireEnv(key: string): string {
   const val = process.env[key];
   if (!val) throw new Error(`Missing environment variable: ${key}`);
   return val;
+}
+
+function optEnv(key: string): string {
+  return process.env[key] || "";
 }
 
 export const CONTENT_DIR = path.join(process.cwd(), "content");

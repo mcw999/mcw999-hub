@@ -7,7 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs/promises";
 import path from "path";
 import {
-  loadConfig,
+  requireEnv,
   CONTENT_DIR,
   ARTICLES_DIR,
   readProjectFiles,
@@ -170,8 +170,8 @@ published: true
 
 // --- メインオーケストレーション ---
 async function main() {
-  const config = loadConfig();
-  const client = new Anthropic({ apiKey: config.anthropicApiKey });
+  const apiKey = requireEnv("ANTHROPIC_API_KEY");
+  const client = new Anthropic({ apiKey });
 
   const projects = await readProjectFiles();
   const publishedLog = await getPublishedLog();
