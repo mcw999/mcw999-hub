@@ -4,7 +4,7 @@ on:
   schedule:
     # 毎週月曜日 09:00 JST (日曜 24:00 UTC)
     - cron: "0 0 * * 1"
-  workflow_dispatch: # 手動実行も可能
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -32,7 +32,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: npx tsx scripts/auto-generate.ts
 
-      # Step 2: Twitter/Xに投稿
+      # Step 2: Twitter/Xに投稿（1つ目のツイート）
       - name: Post to Twitter
         env:
           TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
@@ -49,10 +49,7 @@ jobs:
         run: npx tsx scripts/post-qiita.ts
         continue-on-error: true
 
-      # Step 4: 生成されたコンテンツをコミット＆プッシュ
-      # (Zenn記事はarticles/に、ブログはcontent/blog/に保存済み)
-      # pushすると deploy.yml が走りポートフォリオも自動デプロイされる
-      # pushするとZennのGitHub連携で記事も自動公開される
+      # Step 4: コミット＆プッシュ
       - name: Commit and push generated content
         run: |
           git config user.name "github-actions[bot]"
@@ -61,3 +58,16 @@ jobs:
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "chore: auto-generated weekly PR content [$(date +%Y-%m-%d)]"
           git push
+
+  # 水曜・金曜にストックしたツイートを追加投稿
+  post-tweet-midweek:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    needs: generate-and-distribute
+    strategy:
+      matrix:
+        # 水曜(3)と金曜(5)に追加投稿するためのダミー
+        # 実際のスケジュールはtweet-schedule.ymlで管理
+        dummy: [1]
+    steps:
+      - run: echo "Additional tweets are posted by tweet-schedule.yml"

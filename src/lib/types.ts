@@ -25,6 +25,15 @@ export interface ProjectDefinition {
 
   features: ProjectFeature[];
 
+  // PR用: ユーザー獲得に必要な情報
+  userProblem?: string;        // ターゲットユーザーが抱える課題
+  userProblemJa?: string;
+  solution?: string;           // このアプリがどう解決するか
+  solutionJa?: string;
+  callToAction?: string;       // ユーザーに取ってほしいアクション（例: "無料で試す"）
+  callToActionUrl?: string;    // CTAのリンク先
+  promotionKeywords?: string[]; // SNS投稿に使うキーワード（技術用語ではなく業界用語）
+
   createdAt: string;
   updatedAt: string;
   order: number;
