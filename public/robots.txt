@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mcw999.github.io/mcw999-hub/sitemap.xml
