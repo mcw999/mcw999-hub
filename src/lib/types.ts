@@ -29,6 +29,7 @@ export interface ProjectDefinition {
   updatedAt: string;
   order: number;
   featured: boolean;
+  autoPromote?: boolean;
 }
 
 export interface ProjectFeature {

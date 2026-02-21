@@ -176,20 +176,22 @@ async function main() {
   const projects = await readProjectFiles();
   const publishedLog = await getPublishedLog();
 
-  // 最も記事が少ないプロジェクトを選択
-  const projectsByArticleCount = projects
-    .filter((p: ProjectDefinition) => p.status !== "archived")
+  // autoPromote: true のプロジェクトのみ対象
+  const promotable = projects
+    .filter((p: ProjectDefinition) => p.autoPromote === true)
     .sort((a: ProjectDefinition, b: ProjectDefinition) => {
       const aCount = (publishedLog[a.slug] || []).length;
       const bCount = (publishedLog[b.slug] || []).length;
       return aCount - bCount;
     });
 
-  const targetProject = projectsByArticleCount[0] as ProjectDefinition;
-  if (!targetProject) {
-    console.log("No projects found. Exiting.");
+  if (promotable.length === 0) {
+    console.log("No projects with autoPromote: true. Exiting.");
+    console.log("Set \"autoPromote\": true in content/projects/<slug>.json to enable.");
     return;
   }
+
+  const targetProject = promotable[0] as ProjectDefinition;
 
   console.log(`Target project: ${targetProject.nameJa || targetProject.name}\n`);
 
