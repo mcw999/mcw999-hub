@@ -1,0 +1,42 @@
+{
+  "slug": "easytrade",
+  "name": "EasyTrade",
+  "nameJa": "EasyTrade",
+  "tagline": "Crypto futures trading automation desktop app",
+  "taglineJa": "暗号通貨先物取引の自動化デスクトップアプリ",
+  "description": "A desktop application for automating cryptocurrency futures trading. Built with Tauri for native performance, React for the UI, and a modular monorepo architecture.",
+  "descriptionJa": "暗号通貨先物取引を自動化するデスクトップアプリケーション。Tauriによるネイティブパフォーマンス、ReactによるUI、モジュラーなモノレポ構成で構築。",
+  "category": "crypto",
+  "tags": ["trading", "automation", "desktop-app", "futures"],
+  "targetAudience": ["crypto-traders"],
+  "status": "development",
+  "techStack": ["Tauri", "React", "TypeScript", "Vite", "Rust"],
+  "platforms": ["desktop"],
+  "features": [
+    {
+      "title": "Native Desktop Performance",
+      "titleJa": "ネイティブデスクトップ性能",
+      "description": "Built with Tauri and Rust for fast, lightweight execution",
+      "descriptionJa": "TauriとRustにより高速・軽量な実行を実現",
+      "icon": "Zap"
+    },
+    {
+      "title": "Trading Automation",
+      "titleJa": "トレード自動化",
+      "description": "Automate futures trading strategies with configurable parameters",
+      "descriptionJa": "設定可能なパラメータで先物取引戦略を自動化",
+      "icon": "Bot"
+    },
+    {
+      "title": "Monorepo Architecture",
+      "titleJa": "モノレポ構成",
+      "description": "Clean separation of domain logic, UI, and shared packages",
+      "descriptionJa": "ドメインロジック、UI、共有パッケージを明確に分離",
+      "icon": "Layers"
+    }
+  ],
+  "createdAt": "2025-06-01",
+  "updatedAt": "2026-02-01",
+  "order": 1,
+  "featured": true
+}

@@ -1,0 +1,56 @@
+---
+title: "Building a PR Infrastructure for Solo Developers"
+titleJa: "個人開発者のためのPR基盤を構築する"
+slug: "hello-world"
+date: "2026-02-21"
+tags: ["solo-dev", "portfolio", "next.js"]
+description: "How I built a comprehensive promotion system that can be managed entirely by AI."
+descriptionJa: "AIだけで運用できる包括的なプロモーションシステムを構築した話。"
+published: true
+---
+
+## はじめに
+
+個人開発をしていると、開発に集中するあまりプロモーションが後回しになりがちです。
+せっかく良いプロダクトを作っても、誰にも知られなければ意味がありません。
+
+この問題を解決するために、**Claude Code だけで運用できるPR基盤**を構築しました。
+
+## なぜPR基盤が必要なのか
+
+個人開発者が直面する課題:
+
+- プロジェクトごとに宣伝方法を一から考えるのは非効率
+- SNS投稿、ブログ記事、ランディングページを毎回手作りするのは大変
+- 開発に時間を使いたい、プロモーションは自動化したい
+
+## 構築したもの
+
+1. **ポートフォリオサイト** - プロジェクト一覧と個別ランディングページ
+2. **ブログシステム** - MDXベースで記事を管理
+3. **SNSコンテンツ生成** - プロジェクトデータからTwitter/Zenn/Qiitaの投稿を自動生成
+4. **SEO最適化** - OGP画像、構造化データ、メタタグを自動設定
+
+## 技術スタック
+
+- **Next.js** - 静的エクスポートでどこにでもデプロイ可能
+- **TailwindCSS** - 高速なスタイリング
+- **MDX** - ブログ記事をMarkdownで管理
+- **TypeScript** - 型安全なコンテンツ管理
+
+## 新プロジェクト追加の流れ
+
+JSONファイルを1つ追加するだけで、ポートフォリオに新プロジェクトが表示されます。
+
+```json
+{
+  "slug": "my-new-project",
+  "name": "My New Project",
+  "tagline": "A brief description",
+  "status": "development",
+  "techStack": ["Next.js", "TypeScript"],
+  "features": [...]
+}
+```
+
+SNSコンテンツもスクリプト1つで自動生成。開発に集中できる環境が整いました。

@@ -1,0 +1,49 @@
+{
+  "slug": "dojopass",
+  "name": "DojoPass",
+  "nameJa": "DojoPass",
+  "tagline": "Japanese cultural experience booking platform for tourists",
+  "taglineJa": "訪日観光客向け日本文化体験予約プラットフォーム",
+  "description": "A full-stack platform connecting overseas tourists with authentic Japanese cultural experiences. Features AI-powered matching, instant booking, and multi-language support.",
+  "descriptionJa": "訪日観光客と本格的な日本文化体験を繋ぐフルスタックプラットフォーム。AIマッチング、即時予約、多言語対応を搭載。",
+  "category": "platform",
+  "tags": ["booking", "tourism", "japanese-culture", "multi-language"],
+  "targetAudience": ["foreign-tourists", "experience-providers"],
+  "status": "development",
+  "techStack": ["NestJS", "Flutter", "Next.js", "Supabase", "Stripe", "PostgreSQL"],
+  "platforms": ["web", "mobile"],
+  "features": [
+    {
+      "title": "AI Matching",
+      "titleJa": "AIマッチング",
+      "description": "Intelligent recommendations based on preferences and travel style",
+      "descriptionJa": "好みや旅行スタイルに基づくインテリジェントなレコメンデーション",
+      "icon": "Sparkles"
+    },
+    {
+      "title": "Multi-language Support",
+      "titleJa": "多言語対応",
+      "description": "Available in English, Japanese, Chinese, and Korean",
+      "descriptionJa": "英語・日本語・中国語・韓国語に対応",
+      "icon": "Globe"
+    },
+    {
+      "title": "Instant Booking & Payment",
+      "titleJa": "即時予約・決済",
+      "description": "Seamless booking flow with Stripe payment integration",
+      "descriptionJa": "Stripe決済連携によるシームレスな予約フロー",
+      "icon": "CreditCard"
+    },
+    {
+      "title": "Provider Dashboard",
+      "titleJa": "プロバイダダッシュボード",
+      "description": "Calendar and revenue management for experience hosts",
+      "descriptionJa": "体験ホスト向けのカレンダー・収益管理",
+      "icon": "LayoutDashboard"
+    }
+  ],
+  "createdAt": "2025-10-01",
+  "updatedAt": "2026-02-15",
+  "order": 2,
+  "featured": true
+}

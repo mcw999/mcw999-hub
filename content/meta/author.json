@@ -1,0 +1,21 @@
+{
+  "name": "mcw999",
+  "nameJa": "mcw999",
+  "bio": "Solo developer building tools for crypto trading, Japanese cultural experiences, and developer productivity.",
+  "bioJa": "暗号通貨トレーディング、日本文化体験、開発者向けツールを個人開発しています。",
+  "links": {
+    "github": "https://github.com/mcw999"
+  },
+  "skills": [
+    "TypeScript",
+    "React",
+    "Next.js",
+    "Node.js",
+    "TailwindCSS",
+    "Prisma",
+    "Flutter",
+    "Tauri",
+    "Rust",
+    "Python"
+  ]
+}
