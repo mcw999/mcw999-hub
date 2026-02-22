@@ -39,6 +39,46 @@
       "model": "claude-sonnet-4-20250514",
       "inputTokens": 2818,
       "outputTokens": 1615
+    },
+    {
+      "date": "2026-02-22",
+      "platform": "twitter",
+      "purpose": "ツイート5パターン生成",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 1216,
+      "outputTokens": 692
+    },
+    {
+      "date": "2026-02-22",
+      "platform": "zenn",
+      "purpose": "Zenn記事生成",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 1602,
+      "outputTokens": 2512
+    },
+    {
+      "date": "2026-02-22",
+      "platform": "qiita",
+      "purpose": "Qiita記事生成",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 1494,
+      "outputTokens": 2231
+    },
+    {
+      "date": "2026-02-22",
+      "platform": "blog",
+      "purpose": "ブログ記事生成",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 1442,
+      "outputTokens": 2360
+    },
+    {
+      "date": "2026-02-22",
+      "platform": "devto",
+      "purpose": "英訳翻訳",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 4307,
+      "outputTokens": 3902
     }
   ]
 }

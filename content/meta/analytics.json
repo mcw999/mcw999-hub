@@ -1,6 +1,19 @@
 {
-  "fetchedAt": "2026-02-22T06:01:09.104Z",
+  "fetchedAt": "2026-02-22",
   "posts": [
+    {
+      "platform": "qiita",
+      "title": "【2024年最新】暗号通貨自動取引ツールランキング TOP7 - 初心者でも安心して使える厳選ツール",
+      "url": "https://qiita.com/mcw999/items/9fc2bcc0323617e5fb60",
+      "postId": "9fc2bcc0323617e5fb60",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": 0,
+      "upvoteRatio": null
+    },
     {
       "platform": "qiita",
       "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
@@ -8,7 +21,7 @@
       "postId": "ecdf7229bf65754ca6cb",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 0,
+      "views": 1,
       "likes": 0,
       "comments": 0,
       "stocks": 0,
@@ -21,7 +34,7 @@
       "postId": "2ba73484b102a4ebd07e",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 3,
+      "views": 5,
       "likes": 0,
       "comments": 0,
       "stocks": 0,
@@ -34,7 +47,7 @@
       "postId": "381946386826b5b4dd50",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 13,
+      "views": 15,
       "likes": 0,
       "comments": 0,
       "stocks": 0,
@@ -47,7 +60,7 @@
       "postId": "d7bc48f92f192d081b92",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 88,
+      "views": 96,
       "likes": 0,
       "comments": 1,
       "stocks": 0,
@@ -58,9 +71,9 @@
       "title": "[2024 Latest] Cryptocurrency Futures Market Overheating Detection Tool Comparison Ranking! 5 Methods to Identify Cooling Timing",
       "url": "https://dev.to/mcw999/2024-latest-cryptocurrency-futures-market-overheating-detection-tool-comparison-ranking-5-2da2",
       "postId": "3274442",
-      "slug": "",
+      "slug": "2024-latest-cryptocurrency-futures-market-overheating-detection-tool-comparison-ranking-5-2da2",
       "postedAt": "2026-02-22",
-      "views": 0,
+      "views": 20,
       "likes": 0,
       "comments": 0,
       "stocks": null,
@@ -71,7 +84,7 @@
       "title": "Complete Guide to Starting Cryptocurrency Futures Automated Trading: Building a Safe Trading Environment in 3 Steps",
       "url": "https://dev.to/mcw999/complete-guide-to-starting-cryptocurrency-futures-automated-trading-building-a-safe-trading-41dj",
       "postId": "3274411",
-      "slug": "",
+      "slug": "complete-guide-to-starting-cryptocurrency-futures-automated-trading-building-a-safe-trading-41dj",
       "postedAt": "2026-02-22",
       "views": 1,
       "likes": 0,
@@ -83,22 +96,15 @@
   "summaries": [
     {
       "platform": "qiita",
-      "totalPosts": 4,
-      "totalViews": 104,
+      "totalPosts": 5,
+      "totalViews": 117,
       "totalLikes": 0,
       "totalComments": 1
     },
     {
       "platform": "devto",
       "totalPosts": 2,
-      "totalViews": 1,
-      "totalLikes": 0,
-      "totalComments": 0
-    },
-    {
-      "platform": "reddit",
-      "totalPosts": 0,
-      "totalViews": 0,
+      "totalViews": 21,
       "totalLikes": 0,
       "totalComments": 0
     }
