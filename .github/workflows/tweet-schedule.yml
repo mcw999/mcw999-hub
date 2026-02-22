@@ -2,8 +2,12 @@ name: Scheduled Tweet Posting
 
 on:
   schedule:
-    # 水曜 12:00 JST (水曜 03:00 UTC)
-    - cron: "0 3 * * 3"
+    # 火曜 12:00 JST (火曜 03:00 UTC)
+    - cron: "0 3 * * 2"
+    # 水曜 19:00 JST (水曜 10:00 UTC)
+    - cron: "0 10 * * 3"
+    # 木曜 12:00 JST (木曜 03:00 UTC)
+    - cron: "0 3 * * 4"
     # 金曜 18:00 JST (金曜 09:00 UTC)
     - cron: "0 9 * * 5"
   workflow_dispatch:

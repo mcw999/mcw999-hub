@@ -2,8 +2,8 @@ name: Weekly PR Content Generation & Distribution
 
 on:
   schedule:
-    # 毎週月曜日 09:00 JST (日曜 24:00 UTC)
-    - cron: "0 0 * * 1"
+    # 毎週月曜日 08:00 JST (日曜 23:00 UTC)
+    - cron: "0 23 * * 0"
   workflow_dispatch:
 
 permissions:
@@ -26,13 +26,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Step 1: Claude APIでコンテンツ自動生成
+      # Step 1: Claude APIでコンテンツ自動生成（Twitter5本 + Zenn + Qiita + Blog）
       - name: Generate content with Claude API
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: npx tsx scripts/auto-generate.ts
 
-      # Step 2: Twitter/Xに投稿（1つ目のツイート）
+      # Step 2: Twitter/Xに投稿（1本目）
       - name: Post to Twitter
         env:
           TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
@@ -49,7 +49,34 @@ jobs:
         run: npx tsx scripts/post-qiita.ts
         continue-on-error: true
 
-      # Step 4: コミット＆プッシュ
+      # Step 4: Dev.toにクロスポスト（Qiita/Zenn記事の英訳版）
+      - name: Cross-post to Dev.to
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+        run: npx tsx scripts/post-devto.ts
+        continue-on-error: true
+
+      # Step 5: Redditに投稿（月1回・開発ログ形式）
+      - name: Post to Reddit
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+        run: npx tsx scripts/post-reddit.ts
+        continue-on-error: true
+
+      # Step 6: アナリティクス取得（各プラットフォームの指標をJSONに保存）
+      - name: Fetch analytics
+        env:
+          QIITA_API_TOKEN: ${{ secrets.QIITA_API_TOKEN }}
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+        run: npx tsx scripts/fetch-analytics.ts
+        continue-on-error: true
+
+      # Step 7: コミット＆プッシュ（Zenn記事 + ブログ記事はgit pushで公開される）
       - name: Commit and push generated content
         run: |
           git config user.name "github-actions[bot]"
@@ -58,16 +85,3 @@ jobs:
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "chore: auto-generated weekly PR content [$(date +%Y-%m-%d)]"
           git push
-
-  # 水曜・金曜にストックしたツイートを追加投稿
-  post-tweet-midweek:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'schedule'
-    needs: generate-and-distribute
-    strategy:
-      matrix:
-        # 水曜(3)と金曜(5)に追加投稿するためのダミー
-        # 実際のスケジュールはtweet-schedule.ymlで管理
-        dummy: [1]
-    steps:
-      - run: echo "Additional tweets are posted by tweet-schedule.yml"

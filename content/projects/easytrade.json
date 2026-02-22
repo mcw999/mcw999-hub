@@ -1,0 +1,64 @@
+{
+  "slug": "easytrade",
+  "name": "EasyTrade",
+  "nameJa": "イージートレード",
+  "tagline": "Automate your crypto futures trading with simple rules and safety features",
+  "taglineJa": "シンプルなルールと安全機能で暗号通貨先物取引を自動化",
+  "description": "EasyTrade is a desktop application that automates cryptocurrency futures trading on KuCoin. Users can set simple trading rules based on technical analysis indicators, configure risk management features, and monitor positions in real-time. Supports multiple trading pairs, customizable leverage, and emergency stop with PIN security.",
+  "descriptionJa": "KuCoin先物での暗号通貨取引を自動化するデスクトップアプリケーション。テクニカル分析インジケータに基づいたシンプルな取引ルール設定、リスク管理機能、リアルタイムのポジション監視が可能。複数銘柄対応、カスタマイズ可能なレバレッジ、PINセキュリティ付き緊急停止機能をサポート。",
+  "category": "crypto",
+  "tags": ["crypto", "futures", "trading", "automation", "desktop", "kucoin"],
+  "targetAudience": ["暗号通貨取引初心者", "兼業トレーダー", "リスク管理重視の投資家"],
+  "status": "active",
+  "techStack": ["Tauri", "React", "TypeScript", "Rust", "SQLite", "Vite"],
+  "platforms": ["desktop"],
+  "features": [
+    {
+      "title": "Automated Trading Rules",
+      "titleJa": "自動取引ルール設定",
+      "description": "Set trading rules based on technical indicators across multiple timeframes (1h, 4h, 8h, 24h) with customizable leverage, margin mode, and position direction",
+      "descriptionJa": "複数の時間足(1h/4h/8h/24h)でテクニカルインジケータに基づいた取引ルールを設定。レバレッジ、証拠金モード、ポジション方向をカスタマイズ可能"
+    },
+    {
+      "title": "Risk Management",
+      "titleJa": "リスク管理機能",
+      "description": "Maximum loss limits in USDT, stop loss percentages, take profit targets, and real-time P&L monitoring ensure you never exceed your risk tolerance",
+      "descriptionJa": "USDT単位の最大損失制限、ストップロス率、テイクプロフィット目標、リアルタイム損益監視で、リスク許容度を超えることがありません"
+    },
+    {
+      "title": "Real-time Position Monitoring",
+      "titleJa": "リアルタイムポジション監視",
+      "description": "Track active positions with entry price, size, unrealized P&L, and exit order status. Dashboard shows balance, available funds, and cumulative performance",
+      "descriptionJa": "参入価格、ポジション数量、未実現損益、決済状況をリアルタイム追跡。ダッシュボードで残高・利用可能資金・累計パフォーマンスを表示"
+    },
+    {
+      "title": "Emergency Stop with PIN Security",
+      "titleJa": "緊急停止機能とPINセキュリティ",
+      "description": "6-digit PIN-protected emergency stop immediately closes all positions and halts trading. Prevents unauthorized access in critical situations",
+      "descriptionJa": "6桁PIN保護付きの緊急停止で全ポジションを即座に決済し取引を停止。重大な状況でも不正アクセスを防止"
+    },
+    {
+      "title": "Trade History & Analytics",
+      "titleJa": "取引履歴とパフォーマンス分析",
+      "description": "Detailed trading history with total trades, win/loss count, average P&L, win rate, and performance breakdown to analyze strategy effectiveness",
+      "descriptionJa": "総取引数、勝ち/負け数、平均損益、勝率、パフォーマンス内訳の詳細な取引履歴でストラテジーの効果を分析"
+    },
+    {
+      "title": "Multi-Symbol Support",
+      "titleJa": "マルチシンボル対応",
+      "description": "Free tier includes BTC, ETH, SOL, DOGE. Paid tiers unlock additional symbols for diversified trading strategies",
+      "descriptionJa": "フリープランはBTC/ETH/SOL/DOGEの4銘柄対応。有料プランで追加銘柄を解放し分散投資に対応"
+    }
+  ],
+  "userProblem": "Cryptocurrency futures trading requires constant market monitoring and quick decision-making, which is time-consuming and emotionally draining. Individual traders lack professional tools to automate strategies without technical expertise.",
+  "userProblemJa": "暗号通貨先物取引は常時市場監視と迅速な意思決定が必要で、時間がかかり精神的に消耗します。個人トレーダーは技術的な専門知識なしに取引戦略を自動化するプロフェッショナルなツールを持っていません。24時間市場を監視し続けることは現実的に不可能です。",
+  "solution": "EasyTrade provides an intuitive desktop app that automates trading based on user-defined rules and technical indicators. Simple rule configuration without coding, built-in risk management, and enterprise-grade encryption with PIN-protected emergency stop ensure traders maintain full control and security.",
+  "solutionJa": "EasyTradeはユーザー定義のルールとテクニカルインジケータに基づいて取引を自動化するデスクトップアプリ。コーディング不要のシンプルなルール設定、組み込みリスク管理、エンタープライズグレードの暗号化とPIN付き緊急停止で、完全な制御とセキュリティを提供します。",
+  "callToAction": "無料で始める",
+  "promotionKeywords": ["暗号通貨自動取引", "KuCoin先物", "デスクトップアプリ", "リスク管理", "自動売買ツール", "暗号資産取引", "初心者向け", "安全な取引", "緊急停止機能", "テクニカル分析", "取引自動化", "ポジション監視"],
+  "createdAt": "2025-12-01",
+  "updatedAt": "2026-02-22",
+  "order": 2,
+  "featured": true,
+  "autoPromote": true
+}

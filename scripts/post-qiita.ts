@@ -12,6 +12,14 @@ interface QiitaArticle {
   tags: string[];
 }
 
+interface PostedEntry {
+  filename: string;
+  postId: string;
+  url: string;
+  postedAt: string;
+  slug: string;
+}
+
 async function postToQiita(token: string, article: QiitaArticle) {
   const response = await fetch("https://qiita.com/api/v2/items", {
     method: "POST",
@@ -35,21 +43,43 @@ async function postToQiita(token: string, article: QiitaArticle) {
   return response.json();
 }
 
+function extractSlugFromFilename(filename: string): string {
+  // "2026-02-21-crypto-overheat-analyze.json" → "crypto-overheat-analyze"
+  const match = filename.match(/^\d{4}-\d{2}-\d{2}-(.+)\.\w+$/);
+  return match ? match[1] : filename.replace(/\.\w+$/, "");
+}
+
+async function loadPostedLog(logPath: string): Promise<PostedEntry[]> {
+  try {
+    const raw = await fs.readFile(logPath, "utf-8");
+    const data = JSON.parse(raw);
+    // 旧形式（string[]）との互換性
+    if (Array.isArray(data) && data.length > 0 && typeof data[0] === "string") {
+      return data.map((filename: string) => ({
+        filename,
+        postId: "",
+        url: "",
+        postedAt: "",
+        slug: extractSlugFromFilename(filename),
+      }));
+    }
+    return data;
+  } catch {
+    return [];
+  }
+}
+
 async function main() {
   const config = loadConfig();
 
   const qiitaDir = path.join(CONTENT_DIR, "sns", "qiita");
-  const postedLog = path.join(qiitaDir, ".posted.json");
+  const postedLogPath = path.join(qiitaDir, ".posted.json");
 
-  let posted: string[] = [];
-  try {
-    posted = JSON.parse(await fs.readFile(postedLog, "utf-8"));
-  } catch {
-    posted = [];
-  }
+  const posted = await loadPostedLog(postedLogPath);
+  const postedFilenames = new Set(posted.map((e) => e.filename));
 
   const files = (await fs.readdir(qiitaDir))
-    .filter((f) => f.endsWith(".json") && !f.startsWith(".") && !posted.includes(f))
+    .filter((f) => f.endsWith(".json") && !f.startsWith(".") && !postedFilenames.has(f))
     .sort()
     .reverse();
 
@@ -66,10 +96,17 @@ async function main() {
   console.log(`Tags: ${article.tags.join(", ")}`);
 
   const result = await postToQiita(config.qiitaApiToken, article);
-  console.log(`Qiita article posted! URL: ${result.url}`);
+  console.log(`Qiita article posted! ID: ${result.id}, URL: ${result.url}`);
 
-  posted.push(file);
-  await fs.writeFile(postedLog, JSON.stringify(posted, null, 2), "utf-8");
+  const today = new Date().toISOString().split("T")[0];
+  posted.push({
+    filename: file,
+    postId: result.id,
+    url: result.url,
+    postedAt: today,
+    slug: extractSlugFromFilename(file),
+  });
+  await fs.writeFile(postedLogPath, JSON.stringify(posted, null, 2), "utf-8");
 }
 
 main().catch((err) => {

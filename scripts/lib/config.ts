@@ -8,6 +8,11 @@ export interface Config {
   twitterAccessToken: string;
   twitterAccessSecret: string;
   qiitaApiToken: string;
+  devtoApiKey: string;
+  redditClientId: string;
+  redditClientSecret: string;
+  redditUsername: string;
+  redditPassword: string;
   siteUrl: string;
 }
 
@@ -19,6 +24,11 @@ export function loadConfig(): Config {
     twitterAccessToken: optEnv("TWITTER_ACCESS_TOKEN"),
     twitterAccessSecret: optEnv("TWITTER_ACCESS_SECRET"),
     qiitaApiToken: optEnv("QIITA_API_TOKEN"),
+    devtoApiKey: optEnv("DEVTO_API_KEY"),
+    redditClientId: optEnv("REDDIT_CLIENT_ID"),
+    redditClientSecret: optEnv("REDDIT_CLIENT_SECRET"),
+    redditUsername: optEnv("REDDIT_USERNAME"),
+    redditPassword: optEnv("REDDIT_PASSWORD"),
     siteUrl: process.env.SITE_URL || "https://mcw999.github.io",
   };
 }
@@ -62,4 +72,42 @@ export async function getPublishedLog(): Promise<Record<string, string[]>> {
 export async function savePublishedLog(log: Record<string, string[]>) {
   const logPath = path.join(CONTENT_DIR, "meta", "published-log.json");
   await fs.writeFile(logPath, JSON.stringify(log, null, 2), "utf-8");
+}
+
+/**
+ * Twitter投稿用のプロジェクトコンテキスト
+ * techStackを除外し、ユーザー視点の情報のみ提供
+ */
+export function projectContextForTwitter(project: any): string {
+  return `
+アプリ名: ${project.nameJa || project.name}
+一言説明: ${project.taglineJa || project.tagline}
+ターゲットユーザー: ${(project.targetAudience || []).join(", ")}
+ユーザーの課題: ${project.userProblemJa || project.userProblem || "未設定"}
+解決策: ${project.solutionJa || project.solution || "未設定"}
+主な機能:
+${(project.features || []).map((f: any) => `- ${f.titleJa || f.title}`).join("\n")}
+CTA: ${project.callToAction || "詳しくはこちら"}
+URL: ${project.callToActionUrl || project.liveUrl || project.repositoryUrl || ""}
+ハッシュタグ候補: ${(project.promotionKeywords || project.tags || []).join(", ")}
+`.trim();
+}
+
+/**
+ * 記事・ブログ用のフルコンテキスト
+ */
+export function projectContextFull(project: any): string {
+  return `
+アプリ名: ${project.nameJa || project.name}
+一言説明: ${project.taglineJa || project.tagline}
+詳細: ${project.descriptionJa || project.description}
+ターゲットユーザー: ${(project.targetAudience || []).join(", ")}
+ユーザーの課題: ${project.userProblemJa || project.userProblem || "未設定"}
+解決策: ${project.solutionJa || project.solution || "未設定"}
+主な機能:
+${(project.features || []).map((f: any) => `- ${f.titleJa || f.title}: ${f.descriptionJa || f.description}`).join("\n")}
+CTA: ${project.callToAction || "詳しくはこちら"}
+URL: ${project.callToActionUrl || project.liveUrl || project.repositoryUrl || ""}
+SNSキーワード: ${(project.promotionKeywords || project.tags || []).join(", ")}
+`.trim();
 }
