@@ -38,8 +38,7 @@ yarn-error.log*
 # keep .env.example
 !.env.example
 
-# posted logs (tracking state)
-.posted.json
+# posted logs are tracked (needed for duplicate prevention across workflow runs)
 
 # vercel
 .vercel
