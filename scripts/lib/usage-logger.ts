@@ -2,7 +2,6 @@ import fs from "fs/promises";
 import path from "path";
 import { CONTENT_DIR } from "./config";
 
-const TODAY = new Date().toISOString().split("T")[0];
 const USAGE_PATH = path.join(CONTENT_DIR, "meta", "api-usage.json");
 
 interface UsageEntry {
@@ -33,7 +32,7 @@ export async function logUsage(
   }
 
   data.entries.push({
-    date: TODAY,
+    date: new Date().toISOString(),
     platform,
     purpose,
     model,

@@ -7,7 +7,6 @@ import fs from "fs/promises";
 import path from "path";
 import { loadConfig, CONTENT_DIR } from "./lib/config";
 
-const TODAY = new Date().toISOString().split("T")[0];
 const ANALYTICS_PATH = path.join(CONTENT_DIR, "meta", "analytics.json");
 
 interface PostMetrics {
@@ -248,7 +247,7 @@ async function main() {
   const summaries = buildSummaries(allPosts);
 
   const data: AnalyticsData = {
-    fetchedAt: TODAY,
+    fetchedAt: new Date().toISOString(),
     posts: allPosts,
     summaries,
   };
