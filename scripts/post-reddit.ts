@@ -14,6 +14,7 @@ import {
   getPublishedLog,
   projectContextFull,
 } from "./lib/config";
+import { logUsage } from "./lib/usage-logger";
 import type { ProjectDefinition } from "../src/lib/types";
 
 const TODAY = new Date().toISOString().split("T")[0];
@@ -125,12 +126,15 @@ ${context}
 
 最初の行は「TITLE: 投稿タイトル」としてください。`;
 
+  const model = "claude-sonnet-4-20250514";
   const raw = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model,
     max_tokens: 4096,
     messages: [{ role: "user", content: prompt }],
     system,
   });
+
+  await logUsage("reddit", "Reddit投稿生成", model, raw.usage);
 
   const text = raw.content[0].type === "text" ? raw.content[0].text : "";
   const lines = text.split("\n");

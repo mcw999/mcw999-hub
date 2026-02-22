@@ -21,6 +21,7 @@ import {
   projectContextForTwitter,
   projectContextFull,
 } from "./lib/config";
+import { logUsage } from "./lib/usage-logger";
 import type { ProjectDefinition } from "../src/lib/types";
 
 const TODAY = new Date().toISOString().split("T")[0];
@@ -111,19 +112,21 @@ const TWEET_PATTERNS = [
   },
 ];
 
+const MODEL = "claude-sonnet-4-20250514";
+
 async function generateWithClaude(
   client: Anthropic,
   systemPrompt: string,
   userPrompt: string
-): Promise<string> {
+): Promise<{ text: string; usage: { input_tokens: number; output_tokens: number } }> {
   const response = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: MODEL,
     max_tokens: 4096,
     messages: [{ role: "user", content: userPrompt }],
     system: systemPrompt,
   });
   const block = response.content[0];
-  if (block.type === "text") return block.text;
+  if (block.type === "text") return { text: block.text, usage: response.usage };
   throw new Error("Unexpected response type");
 }
 
@@ -198,8 +201,9 @@ ${context}
 
 5つのツイートを---で区切って出力してください。`;
 
-  const raw = await generateWithClaude(client, system, prompt);
-  return raw
+  const result = await generateWithClaude(client, system, prompt);
+  await logUsage("twitter", "ツイート5パターン生成", MODEL, result.usage);
+  return result.text
     .split("---")
     .map((t) => t.trim())
     .filter(Boolean);
@@ -244,7 +248,9 @@ topics: [${keywords.map((k) => `"${k}"`).join(", ")}]
 published: true
 ---`;
 
-  return generateWithClaude(client, system, prompt);
+  const result = await generateWithClaude(client, system, prompt);
+  await logUsage("zenn", "Zenn記事生成", MODEL, result.usage);
+  return result.text;
 }
 
 // --- Qiita: Zennとは異なる切り口の課題解決記事 ---
@@ -281,8 +287,9 @@ ${context}
 
 最初の行は「TITLE: 記事タイトル」としてください。`;
 
-  const raw = await generateWithClaude(client, system, prompt);
-  const lines = raw.split("\n");
+  const result = await generateWithClaude(client, system, prompt);
+  await logUsage("qiita", "Qiita記事生成", MODEL, result.usage);
+  const lines = result.text.split("\n");
   const title = lines[0].replace(/^TITLE:\s*/, "").trim();
   const body = lines.slice(2).join("\n");
 
@@ -328,7 +335,9 @@ project: "${project.slug}"
 published: true
 ---`;
 
-  return generateWithClaude(client, system, prompt);
+  const result = await generateWithClaude(client, system, prompt);
+  await logUsage("blog", "ブログ記事生成", MODEL, result.usage);
+  return result.text;
 }
 
 // --- コンテンツバリデーション ---

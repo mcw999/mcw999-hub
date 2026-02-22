@@ -12,6 +12,7 @@ import {
   CONTENT_DIR,
   ARTICLES_DIR,
 } from "./lib/config";
+import { logUsage } from "./lib/usage-logger";
 
 const TODAY = new Date().toISOString().split("T")[0];
 
@@ -76,12 +77,15 @@ ${jaBody}
 
 最初の行は「TITLE: 英語タイトル」としてください。`;
 
+  const model = "claude-sonnet-4-20250514";
   const raw = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model,
     max_tokens: 4096,
     messages: [{ role: "user", content: prompt }],
     system,
   });
+
+  await logUsage("devto", "英訳翻訳", model, raw.usage);
 
   const text = raw.content[0].type === "text" ? raw.content[0].text : "";
   const lines = text.split("\n");
