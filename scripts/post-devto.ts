@@ -43,7 +43,10 @@ async function postToDevto(
         title,
         body_markdown: body,
         published: true,
-        tags: tags.slice(0, 4),
+        tags: tags
+          .slice(0, 4)
+          .map((t) => t.replace(/[^a-zA-Z0-9]/g, "").toLowerCase())
+          .filter(Boolean),
       },
     }),
   });
