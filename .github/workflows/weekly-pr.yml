@@ -40,7 +40,7 @@ jobs:
         run: npx tsx scripts/post-qiita.ts
         continue-on-error: true
 
-      # Step 4: Dev.toにクロスポスト（Qiita/Zenn記事の英訳版）
+      # Step 3: Dev.toにクロスポスト（Qiita/Zenn記事の英訳版）
       - name: Cross-post to Dev.to
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -48,7 +48,7 @@ jobs:
         run: npx tsx scripts/post-devto.ts
         continue-on-error: true
 
-      # Step 5: Redditに投稿（月1回・開発ログ形式）
+      # Step 4: Redditに投稿（月1回・開発ログ形式）
       - name: Post to Reddit
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -59,7 +59,7 @@ jobs:
         run: npx tsx scripts/post-reddit.ts
         continue-on-error: true
 
-      # Step 5: アナリティクス取得（各プラットフォームの指標をJSONに保存）
+      # Step 5: アナリティクス取得
       - name: Fetch analytics
         env:
           QIITA_API_TOKEN: ${{ secrets.QIITA_API_TOKEN }}
@@ -71,7 +71,7 @@ jobs:
         run: npx tsx scripts/fetch-analytics.ts
         continue-on-error: true
 
-      # Step 7: コミット＆プッシュ（Zenn記事 + ブログ記事はgit pushで公開される）
+      # Step 6: コミット＆プッシュ
       - name: Commit and push generated content
         run: |
           git config user.name "github-actions[bot]"
