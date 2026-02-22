@@ -94,7 +94,18 @@ async function main() {
   console.log(`Content (${tweetText.length} chars):`);
   console.log(tweetText.substring(0, 100) + (tweetText.length > 100 ? "..." : ""));
 
-  const result = await client.v2.tweet(tweetText);
+  let result;
+  try {
+    result = await client.v2.tweet(tweetText);
+  } catch (e: any) {
+    if (e?.code === 402 || e?.message?.includes("402")) {
+      console.error("X API クレジット不足 (HTTP 402)。");
+      console.error("→ https://developer.x.com でクレジットを購入してください。");
+      console.error("  X APIは従量課金制に移行しました。");
+      process.exit(1);
+    }
+    throw e;
+  }
   const tweetId = result.data.id;
 
   console.log(`Tweet posted! ID: ${tweetId}`);
