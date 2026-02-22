@@ -130,6 +130,25 @@ async function generateWithClaude(
   throw new Error("Unexpected response type");
 }
 
+// --- 頻度チェック: schedule.frequency に基づきスキップ ---
+function isEligibleByFrequency(
+  project: ProjectDefinition,
+  publishedLog: Record<string, string[]>
+): boolean {
+  const freq = project.schedule?.frequency || "weekly";
+  if (freq === "weekly") return true;
+
+  const dates = publishedLog[project.slug] || [];
+  if (dates.length === 0) return true;
+
+  const lastDate = new Date(dates[dates.length - 1]);
+  const daysSince = (Date.now() - lastDate.getTime()) / (24 * 60 * 60 * 1000);
+
+  if (freq === "biweekly") return daysSince >= 13;
+  if (freq === "monthly") return daysSince >= 27;
+  return true;
+}
+
 // --- プロジェクト選定: 週ごとローテーション ---
 function selectProject(
   promotable: ProjectDefinition[],
@@ -494,8 +513,18 @@ async function main() {
     return;
   }
 
+  // 頻度フィルタ: schedule.frequency に基づき今週対象でないプロジェクトを除外
+  const eligible = promotable.filter((p) =>
+    isEligibleByFrequency(p, publishedLog)
+  );
+
+  if (eligible.length === 0) {
+    console.log("今週対象のプロジェクトがありません（頻度スケジュールにより）。");
+    return;
+  }
+
   // プロジェクト選定（ローテーション）
-  const targetProject = selectProject(promotable, publishedLog);
+  const targetProject = selectProject(eligible, publishedLog);
   console.log(
     `対象プロジェクト: ${targetProject.nameJa || targetProject.name}`
   );
@@ -519,9 +548,17 @@ async function main() {
   console.log(`Zenn切り口: ${zennAngle.label}`);
   console.log(`Qiita切り口: ${qiitaAngle.label}\n`);
 
+  const schedulePlatforms = targetProject.schedule?.platforms || [
+    "twitter", "zenn", "qiita", "blog", "devto", "reddit",
+  ];
+  console.log(`配信先: ${schedulePlatforms.join(", ")}\n`);
+
   let hasErrors = false;
 
   // 1. Twitter投稿生成（5パターン）
+  if (!schedulePlatforms.includes("twitter")) {
+    console.log("Twitter: スケジュール対象外のためスキップ\n");
+  } else {
   console.log("ツイート生成中...");
   const tweets = await generateTweets(client, targetProject);
   const twitterDir = path.join(CONTENT_DIR, "sns", "twitter");
@@ -551,8 +588,12 @@ async function main() {
     );
   }
   console.log(`  保存: ${validTweets.length}/${tweets.length}件のツイート\n`);
+  }
 
   // 2. Zenn記事生成
+  if (!schedulePlatforms.includes("zenn")) {
+    console.log("Zenn: スケジュール対象外のためスキップ\n");
+  } else {
   console.log("Zenn記事生成中...");
   const zennArticle = await generateZennArticle(
     client,
@@ -575,8 +616,12 @@ async function main() {
     hasErrors = true;
     console.error("  Zenn記事はバリデーション失敗のためスキップ\n");
   }
+  }
 
   // 3. Qiita記事生成
+  if (!schedulePlatforms.includes("qiita")) {
+    console.log("Qiita: スケジュール対象外のためスキップ\n");
+  } else {
   console.log("Qiita記事生成中...");
   const qiitaArticle = await generateQiitaArticle(
     client,
@@ -602,8 +647,12 @@ async function main() {
     hasErrors = true;
     console.error("  Qiita記事はバリデーション失敗のためスキップ\n");
   }
+  }
 
   // 4. ブログ記事生成
+  if (!schedulePlatforms.includes("blog")) {
+    console.log("Blog: スケジュール対象外のためスキップ\n");
+  } else {
   console.log("ブログ記事生成中...");
   const blogPost = await generateBlogPost(client, targetProject);
   const blogValidation = validateBlogPost(blogPost);
@@ -624,6 +673,7 @@ async function main() {
     hasErrors = true;
     console.error("  ブログ記事はバリデーション失敗のためスキップ\n");
   }
+  }
 
   // 5. 公開ログ更新
   if (!publishedLog[targetProject.slug]) {
@@ -639,9 +689,9 @@ async function main() {
     `  プロジェクト: ${targetProject.nameJa || targetProject.name}`
   );
   console.log(`  日付: ${TODAY}`);
+  console.log(`  配信先: ${schedulePlatforms.join(", ")}`);
   console.log(`  Zenn切り口: ${zennAngle.label}`);
   console.log(`  Qiita切り口: ${qiitaAngle.label}`);
-  console.log(`  ツイート: ${validTweets.length}/${tweets.length}件`);
   if (hasErrors) {
     console.warn(
       "\n⚠ 一部のコンテンツがバリデーションに失敗しました。ログを確認してください。"

@@ -11,8 +11,10 @@ import {
   loadConfig,
   CONTENT_DIR,
   ARTICLES_DIR,
+  readProjectFiles,
 } from "./lib/config";
 import { logUsage } from "./lib/usage-logger";
+import type { ProjectDefinition } from "../src/lib/types";
 
 const TODAY = new Date().toISOString().split("T")[0];
 
@@ -206,6 +208,22 @@ async function main() {
   if (!article) {
     console.log("No new articles to cross-post.");
     return;
+  }
+
+  // スケジュールチェック: 元記事のプロジェクトがdevtoを含むか
+  const articleSlug = extractSlugFromSource(article.source);
+  const allProjects = await readProjectFiles();
+  const sourceProject = allProjects.find(
+    (p: ProjectDefinition) => p.slug === articleSlug
+  );
+  if (sourceProject) {
+    const platforms = sourceProject.schedule?.platforms || [
+      "twitter", "zenn", "qiita", "blog", "devto", "reddit",
+    ];
+    if (!platforms.includes("devto")) {
+      console.log(`Dev.to: ${sourceProject.name} のスケジュール対象外のためスキップ`);
+      return;
+    }
   }
 
   console.log(`Cross-posting from: ${article.source}`);

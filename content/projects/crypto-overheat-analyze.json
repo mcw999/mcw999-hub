@@ -7,11 +7,29 @@
   "description": "A real-time cryptocurrency futures analysis tool that monitors market overheat conditions across 300+ symbols. Using KuCoin Futures data, it analyzes price weakening, volume decline, and open interest changes to identify the exact moment when overheated markets begin cooling. Outputs confidence-scored setup signals with detailed metrics.",
   "descriptionJa": "KuCoin先物の300銘柄以上をリアルタイム分析し、暗号通貨の過熱状態を検出するWebアプリケーション。価格の弱まり、出来高低下、建玉の変化を組み合わせたマルチシグナル分析で、過熱市場の冷却タイミングを高精度で検出し、スコア付きのセットアップシグナルを提供します。",
   "category": "crypto",
-  "tags": ["crypto", "futures", "trading", "analysis", "overheat", "open-interest"],
-  "targetAudience": ["暗号通貨先物トレーダー", "アルゴリズムトレーダー", "マーケットアナリスト"],
+  "tags": [
+    "crypto",
+    "futures",
+    "trading",
+    "analysis",
+    "overheat",
+    "open-interest"
+  ],
+  "targetAudience": [
+    "暗号通貨先物トレーダー",
+    "アルゴリズムトレーダー",
+    "マーケットアナリスト"
+  ],
   "status": "active",
-  "techStack": ["Node.js", "TypeScript", "Express", "Vitest"],
-  "platforms": ["web"],
+  "techStack": [
+    "Node.js",
+    "TypeScript",
+    "Express",
+    "Vitest"
+  ],
+  "platforms": [
+    "web"
+  ],
   "repositoryUrl": "https://github.com/mcw999/CryptoOverHeatAnalyze",
   "features": [
     {
@@ -57,10 +75,34 @@
   "solutionJa": "価格・出来高・建玉の3つの基本データと適応的閾値、明確なシグナルロジックを組み合わせます。価格弱化・出来高弱化・建玉乖離を検出し、時間制限付きのスコア付きセットアップシグナルを提供。感情を排除した客観的な判断基準で、冷却開始タイミングを自動検出します。",
   "callToAction": "GitHubでコードを確認",
   "callToActionUrl": "https://github.com/mcw999/CryptoOverHeatAnalyze",
-  "promotionKeywords": ["仮想通貨先物取引", "市場過熱検出", "冷却シグナル", "リアルタイム分析", "建玉分析", "KuCoin Futures", "テクニカル分析", "アルゴリズム", "適応的閾値", "自動トレード", "暗号資産", "マルチシグナル"],
+  "promotionKeywords": [
+    "仮想通貨先物取引",
+    "市場過熱検出",
+    "冷却シグナル",
+    "リアルタイム分析",
+    "建玉分析",
+    "KuCoin Futures",
+    "テクニカル分析",
+    "アルゴリズム",
+    "適応的閾値",
+    "自動トレード",
+    "暗号資産",
+    "マルチシグナル"
+  ],
   "createdAt": "2026-01-28",
   "updatedAt": "2026-02-22",
   "order": 1,
   "featured": true,
+  "schedule": {
+    "frequency": "weekly",
+    "platforms": [
+      "twitter",
+      "zenn",
+      "qiita",
+      "blog",
+      "devto",
+      "reddit"
+    ]
+  },
   "autoPromote": true
 }

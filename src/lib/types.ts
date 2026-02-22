@@ -34,6 +34,11 @@ export interface ProjectDefinition {
   callToActionUrl?: string;    // CTAのリンク先
   promotionKeywords?: string[]; // SNS投稿に使うキーワード（技術用語ではなく業界用語）
 
+  schedule?: {
+    frequency: "weekly" | "biweekly" | "monthly";
+    platforms: ("twitter" | "zenn" | "qiita" | "blog" | "devto" | "reddit")[];
+  };
+
   createdAt: string;
   updatedAt: string;
   order: number;

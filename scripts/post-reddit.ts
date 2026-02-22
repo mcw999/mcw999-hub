@@ -177,6 +177,15 @@ async function main() {
 
   console.log(`Target project: ${targetProject.nameJa || targetProject.name}`);
 
+  // スケジュールチェック: reddit が対象か
+  const schedulePlatforms = targetProject.schedule?.platforms || [
+    "twitter", "zenn", "qiita", "blog", "devto", "reddit",
+  ];
+  if (!schedulePlatforms.includes("reddit")) {
+    console.log("Reddit: スケジュール対象外のためスキップ");
+    return;
+  }
+
   // Reddit投稿を生成
   console.log("Generating Reddit post...");
   const post = await generateRedditPost(client, targetProject);
