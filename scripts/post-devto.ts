@@ -98,7 +98,9 @@ function extractSlugFromSource(source: string): string {
   return match ? match[1] : filename.replace(/\.\w+$/, "");
 }
 
-async function findLatestArticle(): Promise<{
+async function findUnpostedArticle(
+  postedSources: Set<string>
+): Promise<{
   title: string;
   body: string;
   tags: string[];
@@ -112,14 +114,16 @@ async function findLatestArticle(): Promise<{
       .sort()
       .reverse();
 
-    if (files.length > 0) {
-      const raw = await fs.readFile(path.join(qiitaDir, files[0]), "utf-8");
+    for (const file of files) {
+      const source = `qiita/${file}`;
+      if (postedSources.has(source)) continue;
+      const raw = await fs.readFile(path.join(qiitaDir, file), "utf-8");
       const article = JSON.parse(raw);
       return {
         title: article.title,
         body: article.body,
         tags: article.tags || [],
-        source: `qiita/${files[0]}`,
+        source,
       };
     }
   } catch {
@@ -133,19 +137,21 @@ async function findLatestArticle(): Promise<{
       .sort()
       .reverse();
 
-    if (files.length > 0) {
-      const raw = await fs.readFile(path.join(ARTICLES_DIR, files[0]), "utf-8");
+    for (const file of files) {
+      const source = `zenn/${file}`;
+      if (postedSources.has(source)) continue;
+      const raw = await fs.readFile(path.join(ARTICLES_DIR, file), "utf-8");
       const frontmatterMatch = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
       if (frontmatterMatch) {
         const fm = frontmatterMatch[1];
         const body = frontmatterMatch[2];
         const titleMatch = fm.match(/title:\s*"(.+?)"/);
         const topicsMatch = fm.match(/topics:\s*\[(.+?)\]/);
-        const title = titleMatch ? titleMatch[1] : files[0].replace(".md", "");
+        const title = titleMatch ? titleMatch[1] : file.replace(".md", "");
         const tags = topicsMatch
           ? topicsMatch[1].split(",").map((t) => t.trim().replace(/"/g, ""))
           : [];
-        return { title, body, tags, source: `zenn/${files[0]}` };
+        return { title, body, tags, source };
       }
     }
   } catch {
@@ -192,14 +198,9 @@ async function main() {
   const posted = await loadPostedLog(postedLogPath);
   const postedSources = new Set(posted.map((e) => e.filename));
 
-  const article = await findLatestArticle();
+  const article = await findUnpostedArticle(postedSources);
   if (!article) {
-    console.log("No articles found to cross-post.");
-    return;
-  }
-
-  if (postedSources.has(article.source)) {
-    console.log(`Already cross-posted: ${article.source}`);
+    console.log("No new articles to cross-post.");
     return;
   }
 
