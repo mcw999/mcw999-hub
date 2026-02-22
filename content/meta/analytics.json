@@ -1,13 +1,13 @@
 {
-  "fetchedAt": "2026-02-22",
+  "fetchedAt": "2026-02-22T23:57:55.225Z",
   "posts": [
     {
       "platform": "qiita",
-      "title": "【2024年最新】暗号通貨自動取引ツールランキング TOP7 - 初心者でも安心して使える厳選ツール",
-      "url": "https://qiita.com/mcw999/items/9fc2bcc0323617e5fb60",
-      "postId": "9fc2bcc0323617e5fb60",
+      "title": "【2024年最新】暗号通貨先物の市場過熱検出ツール比較ランキング！冷却タイミングを見極める5つの方法",
+      "url": "https://qiita.com/mcw999/items/16b540528f4967c0e9de",
+      "postId": "16b540528f4967c0e9de",
       "slug": "",
-      "postedAt": "2026-02-22",
+      "postedAt": "2026-02-23",
       "views": 0,
       "likes": 0,
       "comments": 0,
@@ -16,27 +16,14 @@
     },
     {
       "platform": "qiita",
-      "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
-      "url": "https://qiita.com/mcw999/items/ecdf7229bf65754ca6cb",
-      "postId": "ecdf7229bf65754ca6cb",
+      "title": "【2024年最新】暗号通貨自動取引ツールランキング TOP7 - 初心者でも安心して使える厳選ツール",
+      "url": "https://qiita.com/mcw999/items/9fc2bcc0323617e5fb60",
+      "postId": "9fc2bcc0323617e5fb60",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 1,
+      "views": 19,
       "likes": 0,
-      "comments": 0,
-      "stocks": 0,
-      "upvoteRatio": null
-    },
-    {
-      "platform": "qiita",
-      "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
-      "url": "https://qiita.com/mcw999/items/2ba73484b102a4ebd07e",
-      "postId": "2ba73484b102a4ebd07e",
-      "slug": "",
-      "postedAt": "2026-02-22",
-      "views": 5,
-      "likes": 0,
-      "comments": 0,
+      "comments": 1,
       "stocks": 0,
       "upvoteRatio": null
     },
@@ -47,7 +34,7 @@
       "postId": "381946386826b5b4dd50",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 15,
+      "views": 21,
       "likes": 0,
       "comments": 0,
       "stocks": 0,
@@ -60,10 +47,23 @@
       "postId": "d7bc48f92f192d081b92",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 96,
+      "views": 105,
       "likes": 0,
       "comments": 1,
       "stocks": 0,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "devto",
+      "title": "Cryptocurrency Market Overheating and Cooling Detection System Built with Node.js + TypeScript",
+      "url": "https://dev.to/mcw999/cryptocurrency-market-overheating-and-cooling-detection-system-built-with-nodejs-typescript-gd5",
+      "postId": "3276125",
+      "slug": "cryptocurrency-market-overheating-and-cooling-detection-system-built-with-nodejs-typescript-gd5",
+      "postedAt": "2026-02-22",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": null,
       "upvoteRatio": null
     },
     {
@@ -96,14 +96,14 @@
   "summaries": [
     {
       "platform": "qiita",
-      "totalPosts": 5,
-      "totalViews": 117,
+      "totalPosts": 4,
+      "totalViews": 145,
       "totalLikes": 0,
-      "totalComments": 1
+      "totalComments": 2
     },
     {
       "platform": "devto",
-      "totalPosts": 2,
+      "totalPosts": 3,
       "totalViews": 21,
       "totalLikes": 0,
       "totalComments": 0
