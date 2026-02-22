@@ -1,0 +1,54 @@
+{
+  "fetchedAt": "2026-02-22T03:34:01.179Z",
+  "posts": [
+    {
+      "platform": "qiita",
+      "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
+      "url": "https://qiita.com/mcw999/items/381946386826b5b4dd50",
+      "postId": "381946386826b5b4dd50",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": 0,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "qiita",
+      "title": "Node.js + TypeScriptで構築する暗号通貨市場の過熱冷却検出システム",
+      "url": "https://qiita.com/mcw999/items/d7bc48f92f192d081b92",
+      "postId": "d7bc48f92f192d081b92",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 80,
+      "likes": 0,
+      "comments": 1,
+      "stocks": 0,
+      "upvoteRatio": null
+    }
+  ],
+  "summaries": [
+    {
+      "platform": "qiita",
+      "totalPosts": 2,
+      "totalViews": 80,
+      "totalLikes": 0,
+      "totalComments": 1
+    },
+    {
+      "platform": "devto",
+      "totalPosts": 0,
+      "totalViews": 0,
+      "totalLikes": 0,
+      "totalComments": 0
+    },
+    {
+      "platform": "reddit",
+      "totalPosts": 0,
+      "totalViews": 0,
+      "totalLikes": 0,
+      "totalComments": 0
+    }
+  ]
+}
