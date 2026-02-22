@@ -1,6 +1,19 @@
 {
-  "fetchedAt": "2026-02-22T03:34:01.179Z",
+  "fetchedAt": "2026-02-22T05:26:55.468Z",
   "posts": [
+    {
+      "platform": "qiita",
+      "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
+      "url": "https://qiita.com/mcw999/items/2ba73484b102a4ebd07e",
+      "postId": "2ba73484b102a4ebd07e",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": 0,
+      "upvoteRatio": null
+    },
     {
       "platform": "qiita",
       "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
@@ -8,7 +21,7 @@
       "postId": "381946386826b5b4dd50",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 0,
+      "views": 13,
       "likes": 0,
       "comments": 0,
       "stocks": 0,
@@ -21,24 +34,37 @@
       "postId": "d7bc48f92f192d081b92",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 80,
+      "views": 85,
       "likes": 0,
       "comments": 1,
       "stocks": 0,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "devto",
+      "title": "Complete Guide to Starting Cryptocurrency Futures Automated Trading: Building a Safe Trading Environment in 3 Steps",
+      "url": "https://dev.to/mcw999/complete-guide-to-starting-cryptocurrency-futures-automated-trading-building-a-safe-trading-41dj",
+      "postId": "3274411",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": null,
       "upvoteRatio": null
     }
   ],
   "summaries": [
     {
       "platform": "qiita",
-      "totalPosts": 2,
-      "totalViews": 80,
+      "totalPosts": 3,
+      "totalViews": 98,
       "totalLikes": 0,
       "totalComments": 1
     },
     {
       "platform": "devto",
-      "totalPosts": 0,
+      "totalPosts": 1,
       "totalViews": 0,
       "totalLikes": 0,
       "totalComments": 0
