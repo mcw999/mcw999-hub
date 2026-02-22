@@ -1,6 +1,19 @@
 {
-  "fetchedAt": "2026-02-22T05:26:55.468Z",
+  "fetchedAt": "2026-02-22T06:01:09.104Z",
   "posts": [
+    {
+      "platform": "qiita",
+      "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
+      "url": "https://qiita.com/mcw999/items/ecdf7229bf65754ca6cb",
+      "postId": "ecdf7229bf65754ca6cb",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": 0,
+      "upvoteRatio": null
+    },
     {
       "platform": "qiita",
       "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
@@ -8,7 +21,7 @@
       "postId": "2ba73484b102a4ebd07e",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 0,
+      "views": 3,
       "likes": 0,
       "comments": 0,
       "stocks": 0,
@@ -34,10 +47,23 @@
       "postId": "d7bc48f92f192d081b92",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 85,
+      "views": 88,
       "likes": 0,
       "comments": 1,
       "stocks": 0,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "devto",
+      "title": "[2024 Latest] Cryptocurrency Futures Market Overheating Detection Tool Comparison Ranking! 5 Methods to Identify Cooling Timing",
+      "url": "https://dev.to/mcw999/2024-latest-cryptocurrency-futures-market-overheating-detection-tool-comparison-ranking-5-2da2",
+      "postId": "3274442",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": null,
       "upvoteRatio": null
     },
     {
@@ -47,7 +73,7 @@
       "postId": "3274411",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 0,
+      "views": 1,
       "likes": 0,
       "comments": 0,
       "stocks": null,
@@ -57,15 +83,15 @@
   "summaries": [
     {
       "platform": "qiita",
-      "totalPosts": 3,
-      "totalViews": 98,
+      "totalPosts": 4,
+      "totalViews": 104,
       "totalLikes": 0,
       "totalComments": 1
     },
     {
       "platform": "devto",
-      "totalPosts": 1,
-      "totalViews": 0,
+      "totalPosts": 2,
+      "totalViews": 1,
       "totalLikes": 0,
       "totalComments": 0
     },

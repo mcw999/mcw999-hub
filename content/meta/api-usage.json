@@ -1,0 +1,44 @@
+{
+  "entries": [
+    {
+      "date": "2026-02-22",
+      "platform": "twitter",
+      "purpose": "ツイート5パターン生成",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 1280,
+      "outputTokens": 741
+    },
+    {
+      "date": "2026-02-22",
+      "platform": "zenn",
+      "purpose": "Zenn記事生成",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 1601,
+      "outputTokens": 2710
+    },
+    {
+      "date": "2026-02-22",
+      "platform": "qiita",
+      "purpose": "Qiita記事生成",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 1493,
+      "outputTokens": 2610
+    },
+    {
+      "date": "2026-02-22",
+      "platform": "blog",
+      "purpose": "ブログ記事生成",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 1451,
+      "outputTokens": 2482
+    },
+    {
+      "date": "2026-02-22",
+      "platform": "devto",
+      "purpose": "英訳翻訳",
+      "model": "claude-sonnet-4-20250514",
+      "inputTokens": 2818,
+      "outputTokens": 1615
+    }
+  ]
+}
