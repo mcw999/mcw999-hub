@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "tsx scripts/generate-og-image.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -14,6 +15,7 @@
     "auto:twitter": "tsx scripts/post-twitter.ts",
     "auto:qiita": "tsx scripts/post-qiita.ts",
     "auto:all": "tsx scripts/auto-generate.ts && tsx scripts/post-twitter.ts && tsx scripts/post-qiita.ts",
+    "analytics": "node --env-file=.env node_modules/.bin/tsx scripts/fetch-analytics.ts",
     "verify": "tsx scripts/verify-setup.ts"
   },
   "dependencies": {

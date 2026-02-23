@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Clock, Calendar } from "lucide-react";
 import { getAllBlogPosts, getBlogPost } from "@/lib/content";
 import { compileMdxContent } from "@/lib/mdx";
+import { BlogPostContent } from "@/components/pages/BlogPostContent";
+import { ArticleStructuredData } from "@/components/seo/StructuredData";
 
 export async function generateStaticParams() {
   const posts = await getAllBlogPosts();
@@ -21,6 +21,9 @@ export async function generateMetadata({
   return {
     title: post.titleJa || post.title,
     description: post.descriptionJa || post.description,
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
     openGraph: {
       title: post.titleJa || post.title,
       description: post.descriptionJa || post.description,
@@ -41,63 +44,25 @@ export default async function BlogPostPage({
 
   const content = await compileMdxContent(post.content);
 
+  const allPosts = await getAllBlogPosts();
+  const currentIndex = allPosts.findIndex((p) => p.slug === slug);
+  const prevPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+  const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <Link
-        href="/blog/"
-        className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground transition-colors mb-8"
-      >
-        <ArrowLeft size={14} />
-        All Posts
-      </Link>
-
-      <article>
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">
-            {post.titleJa || post.title}
-          </h1>
-          <div className="flex items-center gap-4 text-sm text-muted">
-            <span className="flex items-center gap-1">
-              <Calendar size={14} />
-              {post.date}
-            </span>
-            {post.readingTime && (
-              <span className="flex items-center gap-1">
-                <Clock size={14} />
-                {post.readingTime}
-              </span>
-            )}
-          </div>
-          <div className="flex gap-2 mt-3">
-            {post.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 text-xs rounded bg-zinc-800 text-accent border border-zinc-700"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        </header>
-
-        <div className="prose prose-invert prose-zinc max-w-none prose-headings:font-semibold prose-a:text-accent prose-code:text-accent prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-border">
-          {content}
-        </div>
-      </article>
-
-      {post.project && (
-        <div className="mt-12 p-4 rounded-lg border border-border bg-card">
-          <p className="text-sm text-muted">
-            Related project:{" "}
-            <Link
-              href={`/projects/${post.project}/`}
-              className="text-accent hover:underline"
-            >
-              {post.project}
-            </Link>
-          </p>
-        </div>
-      )}
-    </div>
+    <>
+      <ArticleStructuredData
+        title={post.titleJa || post.title}
+        description={post.descriptionJa || post.description}
+        date={post.date}
+        slug={slug}
+      />
+      <BlogPostContent
+        post={post}
+        content={content}
+        prevPost={prevPost}
+        nextPost={nextPost}
+      />
+    </>
   );
 }
