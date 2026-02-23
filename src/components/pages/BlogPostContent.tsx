@@ -12,6 +12,9 @@ import { T, LT } from "@/lib/i18n";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { SpotlightCard } from "@/components/effects/SpotlightCard";
 import { ScrollReveal } from "@/components/effects/ScrollReveal";
+import { TableOfContents } from "@/components/blog/TableOfContents";
+import { ReadingProgress } from "@/components/blog/ReadingProgress";
+import { ShareButtons } from "@/components/blog/ShareButtons";
 import type { BlogPostMeta } from "@/lib/types";
 import type { ReactNode } from "react";
 
@@ -28,6 +31,8 @@ export function BlogPostContent({
 }) {
   return (
     <div>
+      <ReadingProgress />
+
       {/* Article header */}
       <section className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 pointer-events-none">
@@ -51,32 +56,40 @@ export function BlogPostContent({
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight tracking-tight">
             <LT ja={post.titleJa} en={post.title} />
           </h1>
-          <div className="flex items-center gap-5 text-sm text-muted">
-            <span className="flex items-center gap-1.5">
-              <Calendar size={14} />
-              {post.date}
-            </span>
-            {post.readingTime && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-5 text-sm text-muted">
               <span className="flex items-center gap-1.5">
-                <Clock size={14} />
-                {post.readingTime}
+                <Calendar size={14} />
+                {post.date}
               </span>
-            )}
-            {post.project && (
-              <Link
-                href={`/projects/${post.project}/`}
-                className="flex items-center gap-1.5 hover:text-accent transition-colors"
-              >
-                <FolderOpen size={14} />
-                {post.project}
-              </Link>
-            )}
+              {post.readingTime && (
+                <span className="flex items-center gap-1.5">
+                  <Clock size={14} />
+                  {post.readingTime}
+                </span>
+              )}
+              {post.project && (
+                <Link
+                  href={`/projects/${post.project}/`}
+                  className="flex items-center gap-1.5 hover:text-accent transition-colors"
+                >
+                  <FolderOpen size={14} />
+                  {post.project}
+                </Link>
+              )}
+            </div>
+            <ShareButtons title={post.titleJa || post.title} slug={post.slug} />
           </div>
         </div>
       </section>
 
       {/* Article body */}
-      <div className="mx-auto max-w-3xl px-6 sm:px-10 py-16">
+      <div className="relative mx-auto max-w-3xl px-6 sm:px-10 py-16">
+        {/* TOC sidebar - positioned outside the article flow */}
+        <div className="hidden xl:block absolute left-[calc(100%+2rem)] top-16 w-52">
+          <TableOfContents />
+        </div>
+
         <article className="prose prose-invert prose-zinc max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-accent prose-code:text-accent prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-border prose-lg">
           {content}
         </article>

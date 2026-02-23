@@ -115,17 +115,17 @@ export function HomeContent({
           {/* Right: floating stat cards — 右寄せ */}
           <div className="hidden lg:flex flex-col gap-4 mt-16 lg:mt-0 w-72 shrink-0 fade-up fade-up-delay-3">
             {[
-              { icon: Layers, val: allProjects.length, lbl: <T ja="プロジェクト" en="Projects" />, color: "accent" },
-              { icon: Zap, val: activeCount, lbl: <T ja="稼働中" en="Active" />, color: "accent-secondary" },
-              { icon: Terminal, val: `${techCount}+`, lbl: <T ja="技術スタック" en="Tech Stack" />, color: "accent-tertiary" },
+              { icon: Layers, val: allProjects.length, lbl: <T ja="プロジェクト" en="Projects" />, bgClass: "bg-accent/10", textClass: "text-accent" },
+              { icon: Zap, val: activeCount, lbl: <T ja="稼働中" en="Active" />, bgClass: "bg-accent-secondary/10", textClass: "text-accent-secondary" },
+              { icon: Terminal, val: `${techCount}+`, lbl: <T ja="技術スタック" en="Tech Stack" />, bgClass: "bg-accent-tertiary/10", textClass: "text-accent-tertiary" },
             ].map((s, i) => (
               <div
                 key={i}
                 className="glass rounded-2xl p-5 flex items-center gap-4"
                 style={{ animationDelay: `${0.4 + i * 0.12}s` }}
               >
-                <div className={`p-2.5 rounded-xl bg-${s.color}/10`}>
-                  <s.icon size={20} className={`text-${s.color}`} />
+                <div className={`p-2.5 rounded-xl ${s.bgClass}`}>
+                  <s.icon size={20} className={s.textClass} />
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-foreground">{s.val}</div>
