@@ -44,18 +44,7 @@ jobs:
           DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
         run: npx tsx scripts/post-devto.ts
 
-      # Step 4: Redditに投稿（開発ログ形式）
-      - name: Post to Reddit
-        if: always()
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
-          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
-        run: npx tsx scripts/post-reddit.ts
-
-      # Step 5: Twitterにツイート投稿
+      # Step 4: Twitterにツイート投稿
       - name: Post to Twitter
         if: always()
         env:
@@ -65,19 +54,15 @@ jobs:
           TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
         run: npx tsx scripts/post-twitter.ts
 
-      # Step 6: アナリティクス取得
+      # Step 5: アナリティクス取得
       - name: Fetch analytics
         if: always()
         env:
           QIITA_API_TOKEN: ${{ secrets.QIITA_API_TOKEN }}
           DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
-          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
-          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
         run: npx tsx scripts/fetch-analytics.ts
 
-      # Step 7: コミット＆プッシュ（Zenn自動同期 + Blog自動デプロイがトリガーされる）
+      # Step 6: コミット＆プッシュ（Zenn自動同期 + Blog自動デプロイがトリガーされる）
       - name: Commit and push
         if: always()
         run: |
