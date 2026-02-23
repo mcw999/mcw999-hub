@@ -1,0 +1,38 @@
+{
+  "slug": "budget-tracker",
+  "name": "家計簿アプリ (Budget Tracker)",
+  "tagline": "オフラインファースト家計簿アプリ - 今日の残りを素早く確認",
+  "description": "オフラインファースト家計簿アプリ - 今日の残りを素早く確認",
+  "category": "finance",
+  "tags": [
+    "Flutter",
+    "Dart",
+    "finance"
+  ],
+  "targetAudience": [
+    "個人ユーザー",
+    "モバイルユーザー"
+  ],
+  "status": "active",
+  "techStack": [
+    "Flutter",
+    "Dart"
+  ],
+  "platforms": [
+    "mobile",
+    "web",
+    "desktop"
+  ],
+  "features": [],
+  "promotionKeywords": [
+    "家計簿アプリ (Budget Tracker)",
+    "Flutter",
+    "Dart",
+    "finance"
+  ],
+  "createdAt": "2026-02-23",
+  "updatedAt": "2026-02-23",
+  "order": 0,
+  "featured": false,
+  "autoPromote": true
+}
