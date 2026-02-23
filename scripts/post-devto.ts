@@ -255,6 +255,16 @@ async function loadPostedLog(logPath: string): Promise<PostedEntry[]> {
 }
 
 async function main() {
+  // プラットフォーム指定チェック
+  const envPlatforms = process.env.TARGET_PLATFORMS?.trim() || "";
+  if (envPlatforms) {
+    const platforms = envPlatforms.split(",").map((s) => s.trim());
+    if (!platforms.includes("devto")) {
+      console.log("TARGET_PLATFORMS に devto が含まれていません。スキップします。");
+      return;
+    }
+  }
+
   const config = loadConfig();
 
   if (!config.devtoApiKey) {
@@ -290,14 +300,27 @@ async function main() {
     return;
   }
 
+  // TARGET_SLUG が指定されている場合、そのプロジェクトを優先
+  const envSlug = process.env.TARGET_SLUG?.trim() || "";
+
   // 投稿回数が少ないプロジェクトを優先
   const postedCountBySlug = (slug: string) =>
     posted.filter((e) => e.slug === slug).length;
 
-  const sorted = [...candidates].sort(
-    (a, b) => postedCountBySlug(a.slug) - postedCountBySlug(b.slug)
-  );
-  const targetProject = sorted[0];
+  let targetProject: ProjectDefinition;
+  if (envSlug) {
+    const found = candidates.find((p) => p.slug === envSlug);
+    if (!found) {
+      console.log(`TARGET_SLUG="${envSlug}" に該当するDev.to対象プロジェクトが見つかりません。スキップ。`);
+      return;
+    }
+    targetProject = found;
+  } else {
+    const sorted = [...candidates].sort(
+      (a, b) => postedCountBySlug(a.slug) - postedCountBySlug(b.slug)
+    );
+    targetProject = sorted[0];
+  }
 
   // 角度選定（投稿回数でローテーション）
   const postCount = postedCountBySlug(targetProject.slug);

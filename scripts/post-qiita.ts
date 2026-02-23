@@ -56,6 +56,16 @@ function extractSlugFromFilename(filename: string): string {
 }
 
 async function main() {
+  // プラットフォーム指定チェック
+  const envPlatforms = process.env.TARGET_PLATFORMS?.trim() || "";
+  if (envPlatforms) {
+    const platforms = envPlatforms.split(",").map((s) => s.trim());
+    if (!platforms.includes("qiita")) {
+      console.log("TARGET_PLATFORMS に qiita が含まれていません。スキップします。");
+      return;
+    }
+  }
+
   const config = loadConfig();
 
   if (!config.qiitaApiToken) {
@@ -85,7 +95,14 @@ async function main() {
     return;
   }
 
-  const targetFile = files.find((f) => !postedFiles.has(f));
+  const envSlug = process.env.TARGET_SLUG?.trim() || "";
+  const unposted = files.filter((f) => !postedFiles.has(f));
+
+  // TARGET_SLUG が指定されている場合、そのプロジェクトのファイルを優先
+  const targetFile = envSlug
+    ? unposted.find((f) => f.includes(envSlug)) || unposted[0]
+    : unposted[0];
+
   if (!targetFile) {
     console.log("No new Qiita articles to post.");
     return;

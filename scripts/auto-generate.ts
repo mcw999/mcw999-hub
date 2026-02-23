@@ -774,6 +774,10 @@ async function main() {
   const projects = await readProjectFiles();
   const publishedLog = await getPublishedLog();
 
+  // --- 環境変数による手動指定（workflow_dispatch から渡される）---
+  const envSlug = process.env.TARGET_SLUG?.trim() || "";
+  const envPlatforms = process.env.TARGET_PLATFORMS?.trim() || "";
+
   // autoPromote: true のプロジェクトのみ対象
   const promotable = projects.filter(
     (p: ProjectDefinition) => p.autoPromote === true
@@ -787,21 +791,36 @@ async function main() {
     return;
   }
 
-  // 頻度フィルタ: schedule.frequency に基づき今週対象でないプロジェクトを除外
-  const eligible = promotable.filter((p) =>
-    isEligibleByFrequency(p, publishedLog)
-  );
+  let targetProject: ProjectDefinition;
 
-  if (eligible.length === 0) {
-    console.log("今週対象のプロジェクトがありません（頻度スケジュールにより）。");
-    return;
+  if (envSlug) {
+    // 手動指定: slug で直接プロジェクトを選択
+    const found = promotable.find((p) => p.slug === envSlug);
+    if (!found) {
+      console.error(`TARGET_SLUG="${envSlug}" に該当するautoPromoteプロジェクトが見つかりません。`);
+      process.exit(1);
+    }
+    targetProject = found;
+    console.log(`[手動指定] 対象プロジェクト: ${targetProject.nameJa || targetProject.name}`);
+  } else {
+    // 自動選定（既存のローテーション）
+    // 頻度フィルタ: schedule.frequency に基づき今週対象でないプロジェクトを除外
+    const eligible = promotable.filter((p) =>
+      isEligibleByFrequency(p, publishedLog)
+    );
+
+    if (eligible.length === 0) {
+      console.log("今週対象のプロジェクトがありません（頻度スケジュールにより）。");
+      return;
+    }
+
+    // プロジェクト選定（ローテーション）
+    targetProject = selectProject(eligible, publishedLog);
+    console.log(
+      `対象プロジェクト: ${targetProject.nameJa || targetProject.name}`
+    );
   }
 
-  // プロジェクト選定（ローテーション）
-  const targetProject = selectProject(eligible, publishedLog);
-  console.log(
-    `対象プロジェクト: ${targetProject.nameJa || targetProject.name}`
-  );
   console.log(
     `登録プロジェクト数: ${promotable.length}件 / 公開済み: ${(publishedLog[targetProject.slug] || []).length}回\n`
   );
@@ -822,10 +841,13 @@ async function main() {
   console.log(`Zenn切り口: ${zennAngle.label}`);
   console.log(`Qiita切り口: ${qiitaAngle.label}\n`);
 
-  const schedulePlatforms = targetProject.schedule?.platforms || [
-    "twitter", "zenn", "qiita", "blog", "devto", "reddit",
-  ];
-  console.log(`配信先: ${schedulePlatforms.join(", ")}\n`);
+  // プラットフォーム決定: 手動指定 > プロジェクトのschedule設定 > デフォルト全て
+  const schedulePlatforms = envPlatforms
+    ? envPlatforms.split(",").map((s) => s.trim()).filter(Boolean)
+    : targetProject.schedule?.platforms || [
+        "twitter", "zenn", "qiita", "blog", "devto", "reddit",
+      ];
+  console.log(`配信先: ${schedulePlatforms.join(", ")}${envPlatforms ? " [手動指定]" : ""}\n`);
 
   let hasErrors = false;
 
