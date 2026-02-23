@@ -119,6 +119,14 @@
       "model": "claude-sonnet-4-20250514",
       "inputTokens": 4307,
       "outputTokens": 4096
+    },
+    {
+      "date": "2026-02-23T14:09:41.955Z",
+      "platform": "twitter",
+      "purpose": "ツイート+スレッド生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 1080,
+      "outputTokens": 695
     }
   ]
 }
