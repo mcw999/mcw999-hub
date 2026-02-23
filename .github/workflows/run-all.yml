@@ -1,0 +1,89 @@
+name: Run All - Full Content Generation & Distribution
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-and-distribute:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Step 1: Claude APIでコンテンツ自動生成（Twitter5本 + Zenn + Qiita + Blog）
+      - name: Generate content with Claude API
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npx tsx scripts/auto-generate.ts
+        continue-on-error: true
+
+      # Step 2: Qiitaに投稿
+      - name: Post to Qiita
+        env:
+          QIITA_API_TOKEN: ${{ secrets.QIITA_API_TOKEN }}
+        run: npx tsx scripts/post-qiita.ts
+        continue-on-error: true
+
+      # Step 3: Dev.toにクロスポスト（英語記事を生成・投稿）
+      - name: Cross-post to Dev.to
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+        run: npx tsx scripts/post-devto.ts
+        continue-on-error: true
+
+      # Step 4: Redditに投稿（開発ログ形式）
+      - name: Post to Reddit
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+        run: npx tsx scripts/post-reddit.ts
+        continue-on-error: true
+
+      # Step 5: Twitterにツイート投稿
+      - name: Post to Twitter
+        env:
+          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+        run: npx tsx scripts/post-twitter.ts
+        continue-on-error: true
+
+      # Step 6: アナリティクス取得
+      - name: Fetch analytics
+        env:
+          QIITA_API_TOKEN: ${{ secrets.QIITA_API_TOKEN }}
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+        run: npx tsx scripts/fetch-analytics.ts
+        continue-on-error: true
+
+      # Step 7: コミット＆プッシュ（Zenn自動同期 + Blog自動デプロイがトリガーされる）
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "chore: full content generation & distribution [$(date +%Y-%m-%d)]"
+          git push

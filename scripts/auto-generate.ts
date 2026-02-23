@@ -122,7 +122,7 @@ const TWEET_PATTERNS = [
   },
 ];
 
-const MODEL = "claude-sonnet-4-6-20250620";
+const MODEL = "claude-sonnet-4-6-20250514";
 
 // --- Qiitaの既出タイトルを読み込む ---
 async function loadExistingQiitaTitles(): Promise<string[]> {

@@ -19,7 +19,7 @@ import { logUsage } from "./lib/usage-logger";
 import type { ProjectDefinition } from "../src/lib/types";
 
 const TODAY = new Date().toISOString().split("T")[0];
-const MODEL = "claude-sonnet-4-6-20250620";
+const MODEL = "claude-sonnet-4-6-20250514";
 
 interface PostedEntry {
   filename: string;
