@@ -1,32 +1,6 @@
 {
-  "fetchedAt": "2026-02-22T23:57:55.225Z",
+  "fetchedAt": "2026-02-23T02:29:06.460308700+00:00",
   "posts": [
-    {
-      "platform": "qiita",
-      "title": "【2024年最新】暗号通貨先物の市場過熱検出ツール比較ランキング！冷却タイミングを見極める5つの方法",
-      "url": "https://qiita.com/mcw999/items/16b540528f4967c0e9de",
-      "postId": "16b540528f4967c0e9de",
-      "slug": "",
-      "postedAt": "2026-02-23",
-      "views": 0,
-      "likes": 0,
-      "comments": 0,
-      "stocks": 0,
-      "upvoteRatio": null
-    },
-    {
-      "platform": "qiita",
-      "title": "【2024年最新】暗号通貨自動取引ツールランキング TOP7 - 初心者でも安心して使える厳選ツール",
-      "url": "https://qiita.com/mcw999/items/9fc2bcc0323617e5fb60",
-      "postId": "9fc2bcc0323617e5fb60",
-      "slug": "",
-      "postedAt": "2026-02-22",
-      "views": 19,
-      "likes": 0,
-      "comments": 1,
-      "stocks": 0,
-      "upvoteRatio": null
-    },
     {
       "platform": "qiita",
       "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
@@ -47,66 +21,20 @@
       "postId": "d7bc48f92f192d081b92",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 105,
+      "views": 107,
       "likes": 0,
       "comments": 1,
       "stocks": 0,
-      "upvoteRatio": null
-    },
-    {
-      "platform": "devto",
-      "title": "Cryptocurrency Market Overheating and Cooling Detection System Built with Node.js + TypeScript",
-      "url": "https://dev.to/mcw999/cryptocurrency-market-overheating-and-cooling-detection-system-built-with-nodejs-typescript-gd5",
-      "postId": "3276125",
-      "slug": "cryptocurrency-market-overheating-and-cooling-detection-system-built-with-nodejs-typescript-gd5",
-      "postedAt": "2026-02-22",
-      "views": 0,
-      "likes": 0,
-      "comments": 0,
-      "stocks": null,
-      "upvoteRatio": null
-    },
-    {
-      "platform": "devto",
-      "title": "[2024 Latest] Cryptocurrency Futures Market Overheating Detection Tool Comparison Ranking! 5 Methods to Identify Cooling Timing",
-      "url": "https://dev.to/mcw999/2024-latest-cryptocurrency-futures-market-overheating-detection-tool-comparison-ranking-5-2da2",
-      "postId": "3274442",
-      "slug": "2024-latest-cryptocurrency-futures-market-overheating-detection-tool-comparison-ranking-5-2da2",
-      "postedAt": "2026-02-22",
-      "views": 20,
-      "likes": 0,
-      "comments": 0,
-      "stocks": null,
-      "upvoteRatio": null
-    },
-    {
-      "platform": "devto",
-      "title": "Complete Guide to Starting Cryptocurrency Futures Automated Trading: Building a Safe Trading Environment in 3 Steps",
-      "url": "https://dev.to/mcw999/complete-guide-to-starting-cryptocurrency-futures-automated-trading-building-a-safe-trading-41dj",
-      "postId": "3274411",
-      "slug": "complete-guide-to-starting-cryptocurrency-futures-automated-trading-building-a-safe-trading-41dj",
-      "postedAt": "2026-02-22",
-      "views": 1,
-      "likes": 0,
-      "comments": 0,
-      "stocks": null,
       "upvoteRatio": null
     }
   ],
   "summaries": [
     {
       "platform": "qiita",
-      "totalPosts": 4,
-      "totalViews": 145,
+      "totalPosts": 2,
+      "totalViews": 128,
       "totalLikes": 0,
-      "totalComments": 2
-    },
-    {
-      "platform": "devto",
-      "totalPosts": 3,
-      "totalViews": 21,
-      "totalLikes": 0,
-      "totalComments": 0
+      "totalComments": 1
     }
   ]
 }
