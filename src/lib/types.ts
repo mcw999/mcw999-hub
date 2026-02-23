@@ -90,9 +90,17 @@ export interface AuthorMeta {
     twitter?: string;
     zenn?: string;
     qiita?: string;
+    devto?: string;
     website?: string;
   };
   skills: string[];
+}
+
+export interface ExternalArticle {
+  platform: "devto" | "qiita" | "zenn" | "reddit" | "twitter";
+  url: string;
+  date: string;
+  slug: string;
 }
 
 export interface SiteNavItem {

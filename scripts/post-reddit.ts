@@ -101,30 +101,53 @@ async function postToReddit(
   return { postId, url };
 }
 
+// サブレディット別のプロンプト追加指示
+const SUBREDDIT_PROMPTS: Record<string, string> = {
+  cryptocurrency: `Focus on market analysis findings and data-driven insights. Share specific patterns or anomalies you discovered. The tool is mentioned only as "the analysis method I used" — never as a product recommendation.`,
+  CryptoTechnology: `Focus on the technical implementation of crypto-related analysis. Discuss algorithms, data processing approaches, and architecture decisions. This is a technical audience.`,
+  algotrading: `Focus purely on the algorithm and methodology. Share specific technical decisions (indicators used, thresholds, backtesting results). The audience cares about methodology, not products.`,
+  sideproject: `Write in honest "Show HN" style. Share what you built, what challenges you faced, what metrics you have so far, and what you'd do differently. Be candid about both successes and failures.`,
+  webdev: `Focus on the web development aspects — architecture decisions, framework choices, performance optimizations. Share code snippets and technical insights relevant to web developers.`,
+  SaaS: `Discuss the business and technical aspects of building a SaaS product. Share metrics, user feedback, technical architecture decisions, and lessons from the journey.`,
+};
+
 async function generateRedditPost(
   client: Anthropic,
-  project: ProjectDefinition
+  project: ProjectDefinition,
+  targetSubreddit: string
 ): Promise<{ title: string; body: string }> {
   const context = projectContextFull(project);
+  const subredditContext = SUBREDDIT_PROMPTS[targetSubreddit] || SUBREDDIT_PROMPTS.sideproject;
 
-  const system = `あなたはRedditに投稿する開発者です。開発ログ・分析結果共有の形式で投稿を書きます。
+  const system = `You are a member of the r/${targetSubreddit} community. Write a post sharing your genuine experience — something that contributes to the community, not promotes a product.
 
-絶対ルール:
-- 宣伝色を完全に排除する（「使ってください」「ダウンロードしてください」は禁止）
-- 「こういうものを作った/分析した」という共有・報告の形式にする
-- 技術的な話は開発者コミュニティ向けなのでOK
-- 英語で書く（Redditは英語がメイン）
-- 最初の行は「TITLE: 投稿タイトル」
-- 2行目は空行、3行目から本文
-- 本文は500〜1000語
-- 末尾にGitHub/サイトリンクを自然に含める（「Source code is available at:」等）`;
+Subreddit-specific guidance:
+${subredditContext}
 
-  const prompt = `以下のプロジェクトについて、Reddit向けの開発ログ・成果共有の投稿を英語で書いてください。
-宣伝ではなく、技術的な知見共有やプロジェクト報告の形式にしてください。
+Absolute rules:
+- You are a community member, NOT a marketer
+- NO promotional language ("check it out", "try it", "download", "sign up")
+- The post must be valuable to readers even if they never use your tool
+- English only
+- First line: "TITLE: post title"
+- Second line: empty
+- Third line onward: post body
+- 500-1000 words
+
+Structure your post as:
+1. A problem or question relevant to this community
+2. What you've experienced or discovered
+3. What worked and what didn't (be honest)
+4. Questions for the community (invite genuine discussion)
+
+Your tool/project may appear naturally as part of your experience, but it is NOT the focus.
+Do NOT include links in the post body.`;
+
+  const prompt = `Think about what would be a genuinely interesting discussion topic for r/${targetSubreddit}. Write a post that contributes to the community based on the experience of building/using the project described below.
 
 ${context}
 
-最初の行は「TITLE: 投稿タイトル」としてください。`;
+First line must be "TITLE: post title".`;
 
   const model = "claude-sonnet-4-20250514";
   const raw = await client.messages.create({
@@ -134,7 +157,7 @@ ${context}
     system,
   });
 
-  await logUsage("reddit", "Reddit投稿生成", model, raw.usage);
+  await logUsage("reddit", `Reddit投稿生成 (r/${targetSubreddit})`, model, raw.usage);
 
   const text = raw.content[0].type === "text" ? raw.content[0].text : "";
   const lines = text.split("\n");
@@ -186,22 +209,9 @@ async function main() {
     return;
   }
 
-  // Reddit投稿を生成
-  console.log("Generating Reddit post...");
-  const post = await generateRedditPost(client, targetProject);
-
-  // 投稿を保存
+  // 投稿済みログ読み込み
   const redditDir = path.join(CONTENT_DIR, "sns", "reddit");
   await fs.mkdir(redditDir, { recursive: true });
-  const contentFilename = `${TODAY}-${targetProject.slug}.json`;
-  await fs.writeFile(
-    path.join(redditDir, contentFilename),
-    JSON.stringify(post, null, 2),
-    "utf-8"
-  );
-  console.log(`Saved: content/sns/reddit/${contentFilename}`);
-
-  // 投稿済みログ読み込み
   const postedLogPath = path.join(redditDir, ".posted.json");
   let posted: PostedEntry[] = [];
   try {
@@ -210,10 +220,39 @@ async function main() {
     posted = [];
   }
 
+  // サブレディット選定（カテゴリに基づくリストからローテーション）
+  const subreddits = SUBREDDIT_MAP[targetProject.category] || SUBREDDIT_MAP.other;
+  const projectPosts = posted.filter((e) => e.slug === targetProject.slug);
+  const targetSubreddit = subreddits[projectPosts.length % subreddits.length];
+
+  // 投稿間隔チェック: 同一サブレディットへの最低14日間隔
+  const lastPostToSubreddit = posted
+    .filter((e) => e.subreddit === targetSubreddit)
+    .sort((a, b) => b.postedAt.localeCompare(a.postedAt))[0];
+
+  if (lastPostToSubreddit) {
+    const daysSinceLast = (Date.now() - new Date(lastPostToSubreddit.postedAt).getTime()) / (24 * 60 * 60 * 1000);
+    if (daysSinceLast < 14) {
+      console.log(`r/${targetSubreddit} への最終投稿から${Math.floor(daysSinceLast)}日経過（最低14日必要）。スキップします。`);
+      return;
+    }
+  }
+
+  // Reddit投稿を生成（サブレディット別プロンプト使用）
+  console.log(`Generating Reddit post for r/${targetSubreddit}...`);
+  const post = await generateRedditPost(client, targetProject, targetSubreddit);
+
+  // 投稿を保存
+  const contentFilename = `${TODAY}-${targetProject.slug}.json`;
+  await fs.writeFile(
+    path.join(redditDir, contentFilename),
+    JSON.stringify({ ...post, subreddit: targetSubreddit }, null, 2),
+    "utf-8"
+  );
+  console.log(`Saved: content/sns/reddit/${contentFilename}`);
+
   // Redditに投稿
   const accessToken = await getRedditAccessToken(config);
-  const subreddits = SUBREDDIT_MAP[targetProject.category] || SUBREDDIT_MAP.other;
-  const targetSubreddit = subreddits[0];
 
   console.log(`Posting to r/${targetSubreddit}...`);
   const result = await postToReddit(accessToken, targetSubreddit, post.title, post.body);

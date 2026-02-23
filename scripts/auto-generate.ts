@@ -1,12 +1,15 @@
 /**
  * auto-generate.ts
- * ユーザー獲得に特化したコンテンツを自動生成する。
+ * ターゲットユーザー起点のコンテンツを自動生成する。
+ *
+ * 設計思想:
+ * - 起点は「アプリの宣伝」ではなく「ターゲットユーザーが求めている情報」
+ * - 各プラットフォームのユーザーに価値を提供し、結果としてアプリの認知につなげる
  *
  * 各プラットフォームの役割:
- * - Twitter/X: ターゲットユーザーの悩みに刺さる短文投稿（アプリへの誘導）
- * - Zenn: ターゲットユーザーの課題解決記事（記事内でアプリを自然に紹介）
- * - Qiita: 同上（Zennとは異なる切り口）
- * - ブログ: アプリの使い方・活用事例（ランディングページ的役割）
+ * - Twitter/X: ターゲットと同じ立場からの共感投稿（プロフィール経由でアプリ認知）
+ * - Zenn/Qiita: ターゲットが検索する課題の解決記事（記事内でツールに一言触れる程度）
+ * - ブログ: ターゲットの悩みを解決するガイド（自社サイトなのでアプリ紹介あり）
  */
 import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs/promises";
@@ -20,6 +23,7 @@ import {
   savePublishedLog,
   projectContextForTwitter,
   projectContextFull,
+  blogArticleUrl,
 } from "./lib/config";
 import { logUsage } from "./lib/usage-logger";
 import type { ProjectDefinition } from "../src/lib/types";
@@ -29,57 +33,62 @@ const TODAY = new Date().toISOString().split("T")[0];
 // --- 記事の切り口定義 ---
 const ZENN_ANGLES = [
   {
-    id: "beginner-guide",
-    label: "初心者向けガイド",
-    instruction: "初心者が最初に知るべきことを段階的に解説する記事。専門用語は噛み砕いて説明し、読者が「自分にもできそう」と思える内容にする。",
+    id: "solve-problem",
+    label: "ターゲットの課題解決",
+    zennType: "tech" as const,
+    instruction: "ターゲットユーザーが検索しそうな具体的な課題を取り上げ、解決方法を丁寧に解説する。自分のツールは解決手段の1つとして文脈の中で触れる程度。記事単体で読者の役に立つ内容にすること。",
   },
   {
-    id: "comparison",
-    label: "比較・選び方記事",
-    instruction: "複数の方法やツールを比較し、読者が最適な選択をできるようにする記事。表や箇条書きで違いを明確にし、最終的にアプリを自然に推薦する。",
+    id: "my-experience",
+    label: "自分の体験から学んだこと",
+    zennType: "idea" as const,
+    instruction: "ターゲットユーザーが直面しがちな状況について、自分自身の体験を共有する。成功も失敗も正直に書く。ツールの紹介が目的ではなく、体験の共有が目的。ツールは体験の中に自然に登場する。",
   },
   {
-    id: "failure-lessons",
-    label: "失敗談からの学び",
-    instruction: "よくある失敗パターンを紹介し、そこから学べる教訓を伝える記事。「自分も同じミスをしていた」と共感を呼ぶ構成にし、解決策としてアプリを紹介する。",
+    id: "misconceptions",
+    label: "よくある誤解・落とし穴",
+    zennType: "idea" as const,
+    instruction: "ターゲットユーザーが陥りやすい誤解や落とし穴を取り上げ、正しい理解を促す記事。読者が「知らなかった」「気をつけよう」と思える内容にする。ツールの紹介は必須ではない。",
   },
   {
-    id: "trend-analysis",
-    label: "トレンド解説",
-    instruction: "最新のトレンドや市場動向を解説する記事。データや事例を交えて説得力を持たせ、トレンドに対応する手段としてアプリを紹介する。",
+    id: "how-i-chose",
+    label: "自分がどう選んだか",
+    zennType: "idea" as const,
+    instruction: "ターゲットユーザーが迷いやすい選択（ツール、手法、サービス等）について、自分がどう判断したかを共有する。判断基準と結果を具体的に書く。自分のツールも選択肢の1つとして正直に扱う。",
   },
   {
-    id: "practical-tips",
-    label: "実践Tips集",
-    instruction: "すぐに使える実践的なTipsを5〜7個紹介する記事。各Tipは具体的で再現性があり、その中の1つとしてアプリの活用法を含める。",
+    id: "beginner-roadmap",
+    label: "これから始める人へのロードマップ",
+    zennType: "tech" as const,
+    instruction: "ターゲットユーザーが新しく始めるときに必要な情報を段階的にまとめる。初心者の「何から始めればいい？」に答える構成にする。ツールは実際に使うステップで触れる程度。",
   },
 ];
 
 const QIITA_ANGLES = [
   {
-    id: "howto-steps",
-    label: "ステップバイステップ手順",
-    instruction: "具体的な手順を1-2-3形式で解説する記事。読者がそのまま実行できるレベルの詳細さで、途中でアプリを活用するステップを含める。",
+    id: "solve-problem",
+    label: "ターゲットの課題を解決する方法",
+    instruction: "ターゲットユーザーが実際に検索しそうな課題をテーマにする。その課題の解決方法を具体的に解説し、解決策の1つとして自分が作った/使っているツールに触れる。記事単体で読者の問題が解決する内容にすること。",
   },
   {
-    id: "ranking",
-    label: "ランキング・まとめ",
-    instruction: "カテゴリ内のツールや手法をランキング形式でまとめる記事。客観的な評価基準を示し、アプリを上位に自然にランクインさせる。",
+    id: "what-i-tried",
+    label: "○○を試してみた結果",
+    instruction: "ターゲットユーザーが興味を持つテーマについて、実際に試した結果を共有する。うまくいったこと・いかなかったことを正直に書く。自分のツールは結果の中で自然に登場する程度。",
   },
   {
-    id: "problem-solving",
-    label: "課題解決フロー",
-    instruction: "特定の課題を取り上げ、診断→分析→解決の流れで記事を構成する。課題の原因を深掘りし、根本的な解決策としてアプリを紹介する。",
+    id: "wish-i-knew",
+    label: "始める前に知りたかったこと",
+    instruction: "ターゲットユーザーが初心者だった頃に知りたかった情報をまとめる。実体験に基づいた「もっと早く知りたかった」という知見を共有する。ツールの紹介は不要、触れるなら一言程度。",
   },
   {
-    id: "case-study",
-    label: "活用事例・ユースケース",
-    instruction: "実際の利用シーンを想定したケーススタディ記事。具体的な数値や状況設定を含め、アプリがどう役立つかをストーリーで伝える。",
+    id: "comparison-honest",
+    label: "方法を比較して分かったこと",
+    instruction: "ターゲットユーザーが迷いやすい選択肢を客観的に比較する。自分のツールも候補の1つとして含めてよいが、他の選択肢も公平に扱い、読者が自分で判断できる情報を提供する。",
   },
   {
-    id: "checklist",
-    label: "チェックリスト形式",
-    instruction: "「○○する前に確認すべき10項目」のようなチェックリスト記事。実用性を重視し、チェック項目の中でアプリの機能を自然に紹介する。",
+    id: "daily-workflow",
+    label: "自分のワークフロー紹介",
+    instruction: "ターゲットユーザーが参考にできる日常のワークフローを紹介する。自分が使っているツールや手順を具体的に説明する中で、自分のアプリも自然に登場する。宣伝ではなく、あくまで実際の使い方の共有。",
   },
 ];
 
@@ -112,7 +121,43 @@ const TWEET_PATTERNS = [
   },
 ];
 
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "claude-sonnet-4-6-20250620";
+
+// --- Qiitaの既出タイトルを読み込む ---
+async function loadExistingQiitaTitles(): Promise<string[]> {
+  const titles: string[] = [];
+  try {
+    // .posted.json からタイトルを取得
+    const postedPath = path.join(CONTENT_DIR, "sns", "qiita", ".posted.json");
+    const raw = await fs.readFile(postedPath, "utf-8");
+    const posted = JSON.parse(raw);
+    for (const entry of posted) {
+      if (entry.title) titles.push(entry.title);
+    }
+  } catch { /* ファイルがなければ空 */ }
+  try {
+    // 未投稿のJSON記事からもタイトルを取得
+    const qiitaDir = path.join(CONTENT_DIR, "sns", "qiita");
+    const files = await fs.readdir(qiitaDir);
+    for (const f of files.filter(f => f.endsWith(".json") && !f.startsWith("."))) {
+      const raw = await fs.readFile(path.join(qiitaDir, f), "utf-8");
+      const article = JSON.parse(raw);
+      if (article.title) titles.push(article.title);
+    }
+  } catch { /* ディレクトリがなければ空 */ }
+  return [...new Set(titles)];
+}
+
+// --- 技術コンテキスト（Qiita/Zenn技術記事用）---
+function projectContextForTech(project: any): string {
+  const stack = project.techStack || [];
+  const platforms = project.platforms || [];
+  return `
+技術スタック: ${stack.join(", ") || "未設定"}
+プラットフォーム: ${platforms.join(", ") || "未設定"}
+カテゴリ: ${project.category || "未設定"}
+`.trim();
+}
 
 async function generateWithClaude(
   client: Anthropic,
@@ -178,92 +223,147 @@ function selectProject(
 }
 
 // --- 記事切り口の選定（過去に使った切り口を避ける）---
-function selectAngle(
-  angles: typeof ZENN_ANGLES,
+function selectAngle<T extends { id: string }>(
+  angles: T[],
   projectSlug: string,
   platform: string,
   publishedLog: Record<string, string[]>
-): (typeof ZENN_ANGLES)[number] {
+): T {
   const publishCount = (publishedLog[projectSlug] || []).length;
   // 公開回数に基づいてローテーション
   return angles[publishCount % angles.length];
 }
 
-// --- Twitter: ユーザーの悩みに刺さるツイート（5パターン）---
+// --- Twitter: 独立ツイート2本 + スレッド1本（3ツイート）---
 async function generateTweets(
   client: Anthropic,
   project: ProjectDefinition
-): Promise<string[]> {
+): Promise<{ standalone: string[]; thread: string[] }> {
   const context = projectContextForTwitter(project);
-  const patternDescriptions = TWEET_PATTERNS.map(
-    (p, i) => `(${i + 1})${p.label}: ${p.instruction}`
-  ).join("\n");
 
-  const system = `あなたはアプリのマーケターです。ターゲットユーザーに刺さるツイートを生成します。
+  const system = `あなたはターゲットユーザーの1人です。同じ悩みや関心を持つ人間として、日常の体験や気づきを投稿します。
 
 絶対ルール:
+- あなたは「ユーザー」であり「宣伝者」ではない
 - 技術スタックには一切触れない（React、TypeScript、Rust、Next.js等は禁止）
 - 技術的な用語（API、アルゴリズム、データベース等）も禁止
-- ユーザーの「悩み」「不便」「あるある」から入る
-- アプリがその悩みをどう解決するか伝える
+- 同じ悩みを持つ人が「わかる！」と共感する内容にする
+- アプリ名やURLを入れなくてよい（プロフィールで知ってもらう導線）
 - 各ツイートは280文字以内（厳守）
-- ハッシュタグはターゲットユーザーが検索するワードを使う（技術タグ禁止）
+- ハッシュタグはターゲットユーザーが検索するワードを使う（毎回異なるもの）
+- 改行を活用して読みやすくする
 - ツイート本文のみを出力（説明不要）
-- 5パターン生成し、---で区切る`;
 
-  const prompt = `以下のアプリのターゲットユーザーに刺さるツイートを5パターン書いてください。
+以下の形式で出力してください:
 
-パターン:
-${patternDescriptions}
+STANDALONE-1:
+[共感型: ターゲットが「あるある！」と感じる日常の悩みや体験]
+===
+STANDALONE-2:
+[気づき型: ターゲットの関心領域に関する有益な情報や発見]
+===
+THREAD-1:
+[フック: ターゲットが思わず読みたくなる問いかけや体験の導入]
+THREAD-2:
+[展開: 自分の体験を具体的に共有]
+THREAD-3:
+[まとめ: 学びや気づきを共有し、最後に「詳しくはブログに書いた」としてブログURLを1つ載せる]`;
+
+  const blogUrl = blogArticleUrl(project.slug);
+
+  const prompt = `以下のアプリのターゲットユーザーになりきって、ターゲットが共感・反応するツイートを書いてください。
+宣伝ではなく、同じ立場の人間としての投稿です。
+独立ツイートにはURLは不要です。スレッドの最後（THREAD-3）にだけ、ブログ記事へのリンクを自然に含めてください。
+
+ブログURL: ${blogUrl}
 
 ${context}
 
-5つのツイートを---で区切って出力してください。`;
+上記の形式（STANDALONE-1, STANDALONE-2, THREAD-1/2/3）で出力してください。`;
 
   const result = await generateWithClaude(client, system, prompt);
-  await logUsage("twitter", "ツイート5パターン生成", MODEL, result.usage);
-  return result.text
-    .split("---")
-    .map((t) => t.trim())
-    .filter(Boolean);
+  await logUsage("twitter", "ツイート+スレッド生成", MODEL, result.usage);
+
+  const standalone: string[] = [];
+  const thread: string[] = [];
+
+  const parts = result.text.split("===").map(p => p.trim()).filter(Boolean);
+  for (const part of parts) {
+    const cleaned = part.replace(/^STANDALONE-\d+:\s*/i, "").replace(/^THREAD-\d+:\s*/i, "").trim();
+    if (part.startsWith("STANDALONE")) {
+      standalone.push(cleaned);
+    } else if (part.startsWith("THREAD")) {
+      // THREADパートは1つの===区切りに3つのTHREAD-N:が入っている場合
+      const threadParts = part.split(/THREAD-\d+:\s*/i).filter(Boolean);
+      thread.push(...threadParts.map(t => t.trim()));
+    }
+  }
+
+  // フォールバック: パースに失敗した場合は全てをstandaloneとして扱う
+  if (standalone.length === 0 && thread.length === 0) {
+    const fallback = result.text.split("---").map(t => t.trim()).filter(Boolean);
+    return { standalone: fallback, thread: [] };
+  }
+
+  return { standalone, thread };
 }
 
-// --- Zenn: ターゲットユーザーの課題解決記事 ---
+// --- Zenn: 開発者向け技術記事 ---
 async function generateZennArticle(
   client: Anthropic,
   project: ProjectDefinition,
   angle: (typeof ZENN_ANGLES)[number]
 ): Promise<string> {
-  const keywords = (project.promotionKeywords || project.tags).slice(0, 5);
   const context = projectContextFull(project);
+  const techContext = projectContextForTech(project);
+  const zennType = angle.zennType || "idea";
 
-  const system = `あなたはコンテンツマーケターです。ターゲットユーザーが検索しそうなテーマで記事を書きます。
+  // カテゴリ別のZennトピック
+  const topicMap: Record<string, string[]> = {
+    crypto: ["暗号資産", "TypeScript", "トレード", "自動化", "Web開発"],
+    tool: ["開発ツール", "TypeScript", "React", "デスクトップアプリ", "Rust"],
+    saas: ["SaaS", "TypeScript", "Web開発", "React", "クラウド"],
+    platform: ["プラットフォーム", "TypeScript", "Web開発", "React", "設計"],
+  };
+  const topics = (topicMap[project.category] || (project.tags || []).slice(0, 5));
+
+  const codeInstruction = zennType === "tech"
+    ? "- コード例を積極的に含める（最低2つのコードブロック）\n- 読者が手を動かしながら学べる内容にする"
+    : "- 必要に応じてコード例や設定例を含めてもよい\n- データや具体例で説得力を持たせる";
+
+  const system = `あなたはターゲットユーザーと同じ立場の人間です。自分自身の体験や知見を共有する記事を書きます。
 
 今回の記事の切り口: ${angle.label}
 ${angle.instruction}
 
 絶対ルール:
-- 記事のメインテーマはユーザーの「課題」と「解決方法」
-- 技術的な実装の話はしない（コードやアーキテクチャの説明禁止）
-- 記事の後半で自然にアプリを紹介する（宣伝臭を出さない）
-- 読者が「役に立った」と思える実用的な内容にする
+- 記事のメインテーマは「ターゲットユーザーが検索しそうなこと」「ターゲットが知りたいこと」
+- あなたはマーケターではなく、読者と同じ悩みを持つ1人の人間として書く
+${codeInstruction}
+- アプリの紹介が記事の目的ではない。記事単体で読者の役に立つこと
+- アプリに触れる場合は「自分が使っている/作ったもの」として文脈の中で自然に（必須ではない）
 - Zennフロントマター形式で始める
 - フロントマターと完全な本文を含む、すぐに公開できる完成した記事を書く
-- テンプレートやプレースホルダーは絶対に使わない
+- テンプレートやプレースホルダーは絶対に使わない（[ここに〜]、TODO、...で省略 等は禁止）
+- すべてのセクションを完全に書き切ること（「以下に続く」「詳細は省略」等も禁止）
 - 1500〜3000字
 - published: true は必須`;
 
-  const prompt = `以下のアプリのターゲットユーザーが抱える課題をテーマに、「${angle.label}」の切り口で記事を書いてください。
-すぐにZennに公開できる完成した記事を出力してください。[ここに〜を書く]のようなプレースホルダーは禁止です。
+  const blogUrl = blogArticleUrl(project.slug);
+
+  const prompt = `以下のアプリのターゲットユーザーになりきって、「${angle.label}」の切り口で記事を書いてください。
+ターゲットが検索しそうなテーマを選び、読者の役に立つ記事にしてください。
+アプリの宣伝ではなく、同じ立場の人間からの知見共有です。
+記事の最後に「より詳しい解説はブログに書いています」として以下のURLを自然に含めてください: ${blogUrl}
 
 ${context}
 
 Zennフロントマター形式で始めてください:
 ---
-title: "ユーザーの課題に関するタイトル（アプリ名を入れない）"
+title: "ターゲットユーザーが検索しそうなタイトル（アプリ名を入れない）"
 emoji: "適切な絵文字"
-type: "idea"
-topics: [${keywords.map((k) => `"${k}"`).join(", ")}]
+type: "${zennType}"
+topics: [${topics.map((k) => `"${k}"`).join(", ")}]
 published: true
 ---`;
 
@@ -272,7 +372,7 @@ published: true
   return result.text;
 }
 
-// --- Qiita: Zennとは異なる切り口の課題解決記事 ---
+// --- Qiita: 技術記事（コード例付き）---
 async function generateQiitaArticle(
   client: Anthropic,
   project: ProjectDefinition,
@@ -281,26 +381,40 @@ async function generateQiitaArticle(
 ): Promise<{ title: string; body: string; tags: string[] }> {
   const keywords = (project.promotionKeywords || project.tags).slice(0, 5);
   const context = projectContextFull(project);
+  const techContext = projectContextForTech(project);
   const zennAngle = ZENN_ANGLES.find((a) => a.id === zennAngleId);
+  const currentYear = new Date().getFullYear();
 
-  const system = `あなたはコンテンツマーケターです。ターゲットユーザー向けの記事を書きます。
+  // 既出タイトルを読み込んで重複防止
+  const existingTitles = await loadExistingQiitaTitles();
+  const titleExclusion = existingTitles.length > 0
+    ? `\n以下のタイトルは既に使用済みです。同じまたは類似のタイトルは禁止:\n${existingTitles.map(t => `- ${t}`).join("\n")}`
+    : "";
+
+  const system = `あなたはターゲットユーザーと同じ悩みを持つ1人の人間です。自分の体験や知見を共有する記事を書きます。
 
 今回の記事の切り口: ${angle.label}
 ${angle.instruction}
 
 絶対ルール:
-- Zennには「${zennAngle?.label || "別の切り口"}」で記事を書いたので、完全に異なるアプローチにする
-- 技術的な実装の話はしない（コードやアーキテクチャの説明禁止）
-- 記事の中で自然にアプリを紹介する（宣伝臭を出さない）
-- 具体的なステップや比較を含める
-- フロントマターと完全な本文を含む、すぐに公開できる完成した記事を書く
-- テンプレートやプレースホルダーは絶対に使わない
+- 記事のテーマは「ターゲットユーザーが検索しそうなキーワード」から決める
+- あなたはマーケターではなく、読者と同じ立場の人間として書く
+- Zennには「${zennAngle?.label || "別の切り口"}」で記事を書いたので、完全に異なるテーマにする
+- アプリの紹介が記事の目的ではない。記事単体で読者の問題が解決すること
+- アプリに触れる場合は「自分が使っている/作ったもの」として一言触れる程度（必須ではない）
+- テンプレートやプレースホルダーは絶対に使わない（[ここに〜]、TODO等禁止）
 - 最初の行は「TITLE: 記事タイトル」
-- 2行目は空行、3行目から本文
-- 1500〜3000字`;
+- 2行目は空行、3行目から本文（Markdown形式）
+- 1500〜3000字
+- タイトルはターゲットユーザーが検索しそうな自然な表現にする
+- 年号を使う場合は必ず${currentYear}年（古い年号禁止）${titleExclusion}`;
 
-  const prompt = `以下のアプリのターゲットユーザー向けに、「${angle.label}」の切り口で記事を書いてください。
-すぐにQiitaに公開できる完成した記事を出力してください。[ここに〜を書く]のようなプレースホルダーは禁止です。
+  const blogUrl = blogArticleUrl(project.slug);
+
+  const prompt = `以下のアプリのターゲットユーザーになりきって、「${angle.label}」の切り口で記事を書いてください。
+ターゲットが検索しそうなテーマを選び、読者の役に立つ記事にしてください。
+アプリの宣伝ではなく、同じ立場の人間からの知見共有です。
+記事の最後に「関連記事」や「参考」として以下のブログURLを自然に含めてください: ${blogUrl}
 
 ${context}
 
@@ -323,20 +437,23 @@ async function generateBlogPost(
   const slug = `${project.slug}-guide`;
   const context = projectContextFull(project);
 
-  const system = `あなたはアプリの公式ブログライターです。アプリの活用ガイドを書きます。
+  const system = `あなたはターゲットユーザーの悩みを理解し、それを解決する方法を紹介するブログライターです。
+この記事は各SNS（Twitter、Qiita、Zenn、Dev.to、Reddit）から誘導される「詳細記事」です。
+SNSでは短い概要や体験を共有し、「詳しくはブログで」とリンクされる受け皿になります。
 
 絶対ルール:
-- ユーザー目線で書く（開発者目線にしない）
-- アプリの使い方、活用シーン、メリットを伝える
-- 「このアプリを使えば○○ができる」という価値提案
+- 読者の悩みや課題から始める（アプリの機能紹介から始めない）
+- 「読者がこの記事を読んで何が解決するか」を最初に明確にする
+- SNSの短い投稿では伝えきれない詳細をここで丁寧に解説する
+- 解決策としてアプリの使い方を具体的に説明する
 - MDXフロントマター形式で始める
 - フロントマターと完全な本文を含む、すぐに公開できる記事を書く
 - テンプレートやプレースホルダーは絶対に使わない
 - 日本語で書く
 - 1000〜2000字`;
 
-  const prompt = `以下のアプリの活用ガイド記事を書いてください。
-想定読者はアプリのターゲットユーザーです。
+  const prompt = `以下のアプリのターゲットユーザーが抱える課題を出発点として、その解決方法を紹介する記事を書いてください。
+読者は「自分の悩みが解決できるか」を知りたくてこの記事に辿り着いた人です。
 すぐにブログに公開できる完成した記事を出力してください。
 
 ${context}
@@ -406,11 +523,14 @@ function validateZennArticle(content: string): ValidationResult {
     errors.push("published: true が設定されていません");
   }
 
-  // プレースホルダーチェック
-  const placeholderPatterns = [/\[ここに.*?\]/g, /\[.*?を記入\]/g, /TODO/g, /FIXME/g];
+  // プレースホルダー・不完全コンテンツチェック
+  const placeholderPatterns = [
+    /\[ここに.*?\]/g, /\[.*?を記入\]/g, /TODO/g, /FIXME/g,
+    /<!-- .* -->/g, /以下に続く/g, /詳細は省略/g, /\.\.\.$/gm,
+  ];
   for (const pattern of placeholderPatterns) {
     if (pattern.test(content)) {
-      errors.push(`プレースホルダーが残っています: ${content.match(pattern)?.[0]}`);
+      errors.push(`不完全なコンテンツ: ${content.match(pattern)?.[0]}`);
     }
   }
 
@@ -419,7 +539,7 @@ function validateZennArticle(content: string): ValidationResult {
   if (bodyMatch) {
     const bodyLength = bodyMatch[1].length;
     if (bodyLength < 800) {
-      warnings.push(`本文が短い可能性: ${bodyLength}文字`);
+      warnings.push(`本文が短い可能性: ${bodyLength}文字 (推奨: 1500-3000)`);
     }
   }
 
@@ -438,12 +558,25 @@ function validateQiitaArticle(article: {
     errors.push("タイトルが空です");
   }
 
+  // 誤った年号チェック
+  const currentYear = new Date().getFullYear();
+  const yearMatch = article.title.match(/\b(20[0-9]{2})\b/);
+  if (yearMatch && parseInt(yearMatch[1]) < currentYear) {
+    errors.push(`タイトルの年号が古い: ${yearMatch[1]} (現在: ${currentYear})`);
+  }
+
   if (article.body.length < 800) {
-    warnings.push(`本文が短い可能性: ${article.body.length}文字`);
+    warnings.push(`本文が短い可能性: ${article.body.length}文字 (推奨: 1500-3000)`);
   }
 
   if (article.tags.length === 0) {
     errors.push("タグがありません");
+  }
+
+  // コードブロック必須チェック
+  const codeBlockCount = (article.body.match(/```/g) || []).length / 2;
+  if (codeBlockCount < 2) {
+    warnings.push(`コードブロックが少ない: ${Math.floor(codeBlockCount)}個 (推奨: 3個以上)`);
   }
 
   // プレースホルダーチェック
@@ -555,39 +688,57 @@ async function main() {
 
   let hasErrors = false;
 
-  // 1. Twitter投稿生成（5パターン）
+  // 1. Twitter投稿生成（独立2本 + スレッド1本）
   if (!schedulePlatforms.includes("twitter")) {
     console.log("Twitter: スケジュール対象外のためスキップ\n");
   } else {
   console.log("ツイート生成中...");
-  const tweets = await generateTweets(client, targetProject);
+  const { standalone, thread } = await generateTweets(client, targetProject);
   const twitterDir = path.join(CONTENT_DIR, "sns", "twitter");
   await fs.mkdir(twitterDir, { recursive: true });
 
-  const validTweets: string[] = [];
-  for (let i = 0; i < tweets.length; i++) {
-    const result = validateTweet(tweets[i]);
-    logValidation(`ツイート${i + 1}`, result);
+  // 独立ツイートのバリデーションと保存
+  const validStandalone: string[] = [];
+  for (let i = 0; i < standalone.length; i++) {
+    const result = validateTweet(standalone[i]);
+    logValidation(`独立ツイート${i + 1}`, result);
     if (result.valid) {
-      validTweets.push(tweets[i]);
+      validStandalone.push(standalone[i]);
     } else {
       hasErrors = true;
     }
   }
-
-  // バリデーション通過したツイートのみ保存
-  for (let i = 0; i < validTweets.length; i++) {
+  for (let i = 0; i < validStandalone.length; i++) {
     const suffix = i === 0 ? "" : `-v${i + 1}`;
     await fs.writeFile(
-      path.join(
-        twitterDir,
-        `${TODAY}-${targetProject.slug}${suffix}.txt`
-      ),
-      validTweets[i],
+      path.join(twitterDir, `${TODAY}-${targetProject.slug}${suffix}.txt`),
+      validStandalone[i],
       "utf-8"
     );
   }
-  console.log(`  保存: ${validTweets.length}/${tweets.length}件のツイート\n`);
+
+  // スレッドのバリデーションと保存
+  if (thread.length > 0) {
+    let threadValid = true;
+    for (let i = 0; i < thread.length; i++) {
+      const result = validateTweet(thread[i]);
+      logValidation(`スレッド${i + 1}`, result);
+      if (!result.valid) {
+        threadValid = false;
+        hasErrors = true;
+      }
+    }
+    if (threadValid) {
+      await fs.writeFile(
+        path.join(twitterDir, `${TODAY}-${targetProject.slug}.thread.json`),
+        JSON.stringify(thread, null, 2),
+        "utf-8"
+      );
+      console.log(`  保存: スレッド(${thread.length}ツイート)\n`);
+    }
+  }
+
+  console.log(`  保存: ${validStandalone.length}件の独立ツイート\n`);
   }
 
   // 2. Zenn記事生成

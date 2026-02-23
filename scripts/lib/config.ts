@@ -46,6 +46,18 @@ function optEnv(key: string): string {
 export const CONTENT_DIR = path.join(process.cwd(), "content");
 export const ARTICLES_DIR = path.join(process.cwd(), "articles");
 
+const SITE_BASE = "https://mcw999.github.io/mcw999-hub";
+
+/** ブログ記事のURL（ハブ導線用） */
+export function blogArticleUrl(projectSlug: string): string {
+  return `${SITE_BASE}/blog/${projectSlug}-guide/`;
+}
+
+/** プロジェクト詳細ページのURL */
+export function projectPageUrl(projectSlug: string): string {
+  return `${SITE_BASE}/projects/${projectSlug}/`;
+}
+
 export async function readProjectFiles() {
   const dir = path.join(CONTENT_DIR, "projects");
   const files = await fs.readdir(dir);

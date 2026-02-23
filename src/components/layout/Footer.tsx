@@ -1,19 +1,86 @@
-import { Github } from "lucide-react";
+"use client";
+
+import Link from "next/link";
+import { Github, ArrowUpRight, Code2 } from "lucide-react";
+import { useLocale, T } from "@/lib/i18n";
+
+const NAV_LINKS = [
+  { en: "Projects", ja: "プロジェクト", href: "/projects" },
+  { en: "Blog", ja: "ブログ", href: "/blog" },
+  { en: "About", ja: "概要", href: "/about" },
+];
 
 export function Footer() {
+  const { locale } = useLocale();
+
   return (
     <footer className="border-t border-border mt-auto">
-      <div className="mx-auto max-w-5xl px-6 py-8 flex items-center justify-between text-sm text-muted">
-        <p>&copy; {new Date().getFullYear()} mcw999</p>
-        <div className="flex items-center gap-4">
-          <a
-            href="https://github.com/mcw999"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors"
+      <div className="mx-auto max-w-7xl px-6 sm:px-10 py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-10">
+          {/* Brand */}
+          <div>
+            <Link href="/" className="flex items-center gap-2.5 mb-4 group">
+              <div className="p-1.5 rounded-lg bg-accent/10 group-hover:bg-accent/20 transition-colors">
+                <Code2 size={16} className="text-accent" />
+              </div>
+              <span className="font-bold text-foreground">mcw999</span>
+            </Link>
+            <p className="text-sm text-muted leading-relaxed">
+              <T
+                ja="暗号資産トレーディングツールや開発者向けプロダクトを個人開発しています。"
+                en="Solo developer building crypto trading tools and developer products."
+              />
+            </p>
+          </div>
+
+          {/* Navigation */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+              <T ja="ナビゲーション" en="Navigation" />
+            </h4>
+            <nav className="flex flex-col gap-2.5">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-muted hover:text-foreground transition-colors w-fit"
+                >
+                  {locale === "ja" ? link.ja : link.en}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* External */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+              <T ja="リンク" en="Links" />
+            </h4>
+            <nav className="flex flex-col gap-2.5">
+              <a
+                href="https://github.com/mcw999"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors w-fit"
+              >
+                <Github size={14} />
+                GitHub
+                <ArrowUpRight size={11} className="opacity-50" />
+              </a>
+            </nav>
+          </div>
+        </div>
+
+        <div className="pt-6 border-t border-border flex items-center justify-between">
+          <span className="text-xs text-muted/50">
+            &copy; {new Date().getFullYear()} mcw999
+          </span>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="text-xs text-muted hover:text-foreground transition-colors"
           >
-            <Github size={18} />
-          </a>
+            <T ja="トップへ" en="Back to top" /> &uarr;
+          </button>
         </div>
       </div>
     </footer>

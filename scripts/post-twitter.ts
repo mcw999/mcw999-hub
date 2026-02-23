@@ -23,9 +23,9 @@ interface PostedEntry {
 }
 
 function extractSlugFromFilename(filename: string): string {
-  // "2026-02-22-easytrade.txt" or "2026-02-22-easytrade-v2.txt"
-  const match = filename.match(/^\d{4}-\d{2}-\d{2}-(.+?)(?:-v\d+)?\.txt$/);
-  return match ? match[1] : filename.replace(/\.txt$/, "");
+  // "2026-02-22-easytrade.txt", "2026-02-22-easytrade-v2.txt", or "2026-02-22-easytrade.thread.json"
+  const match = filename.match(/^\d{4}-\d{2}-\d{2}-(.+?)(?:-v\d+)?\.(?:txt|thread\.json)$/);
+  return match ? match[1] : filename.replace(/\.(?:txt|thread\.json)$/, "");
 }
 
 async function main() {
@@ -57,7 +57,7 @@ async function main() {
   let files: string[];
   try {
     files = (await fs.readdir(twitterDir))
-      .filter((f) => f.endsWith(".txt") && !f.startsWith("."))
+      .filter((f) => (f.endsWith(".txt") || f.endsWith(".thread.json")) && !f.startsWith("."))
       .sort(); // 古い順
   } catch {
     console.log("No tweet files found.");
@@ -86,37 +86,86 @@ async function main() {
     }
   }
 
-  const tweetText = (
-    await fs.readFile(path.join(twitterDir, targetFile), "utf-8")
-  ).trim();
+  const isThread = targetFile.endsWith(".thread.json");
 
-  console.log(`Posting tweet from: ${targetFile}`);
-  console.log(`Content (${tweetText.length} chars):`);
-  console.log(tweetText.substring(0, 100) + (tweetText.length > 100 ? "..." : ""));
+  if (isThread) {
+    // スレッド投稿（チェーン形式）
+    const threadTweets: string[] = JSON.parse(
+      await fs.readFile(path.join(twitterDir, targetFile), "utf-8")
+    );
+    console.log(`Posting thread from: ${targetFile} (${threadTweets.length} tweets)`);
 
-  let result;
-  try {
-    result = await client.v2.tweet(tweetText);
-  } catch (e: any) {
-    if (e?.code === 402 || e?.message?.includes("402")) {
-      console.error("X API クレジット不足 (HTTP 402)。");
-      console.error("→ https://developer.x.com でクレジットを購入してください。");
-      console.error("  X APIは従量課金制に移行しました。");
-      process.exit(1);
+    let previousTweetId: string | undefined;
+    const tweetIds: string[] = [];
+
+    for (let i = 0; i < threadTweets.length; i++) {
+      const text = threadTweets[i].trim();
+      console.log(`  Thread ${i + 1}/${threadTweets.length} (${text.length} chars)`);
+
+      let result;
+      try {
+        const options: any = {};
+        if (previousTweetId) {
+          options.reply = { in_reply_to_tweet_id: previousTweetId };
+        }
+        result = await client.v2.tweet(text, options);
+      } catch (e: any) {
+        if (e?.code === 402 || e?.message?.includes("402")) {
+          console.error("X API クレジット不足 (HTTP 402)。");
+          console.error("→ https://developer.x.com でクレジットを購入してください。");
+          process.exit(1);
+        }
+        throw e;
+      }
+
+      previousTweetId = result.data.id;
+      tweetIds.push(result.data.id);
     }
-    throw e;
+
+    console.log(`Thread posted! IDs: ${tweetIds.join(", ")}`);
+    console.log(`URL: https://x.com/i/status/${tweetIds[0]}`);
+
+    posted.push({
+      filename: targetFile,
+      tweetId: tweetIds[0],
+      postedAt: TODAY,
+      slug,
+    });
+  } else {
+    // 独立ツイート投稿
+    const tweetText = (
+      await fs.readFile(path.join(twitterDir, targetFile), "utf-8")
+    ).trim();
+
+    console.log(`Posting tweet from: ${targetFile}`);
+    console.log(`Content (${tweetText.length} chars):`);
+    console.log(tweetText.substring(0, 100) + (tweetText.length > 100 ? "..." : ""));
+
+    let result;
+    try {
+      result = await client.v2.tweet(tweetText);
+    } catch (e: any) {
+      if (e?.code === 402 || e?.message?.includes("402")) {
+        console.error("X API クレジット不足 (HTTP 402)。");
+        console.error("→ https://developer.x.com でクレジットを購入してください。");
+        console.error("  X APIは従量課金制に移行しました。");
+        process.exit(1);
+      }
+      throw e;
+    }
+    const tweetId = result.data.id;
+
+    console.log(`Tweet posted! ID: ${tweetId}`);
+    console.log(`URL: https://x.com/i/status/${tweetId}`);
+
+    posted.push({
+      filename: targetFile,
+      tweetId,
+      postedAt: TODAY,
+      slug,
+    });
   }
-  const tweetId = result.data.id;
 
-  console.log(`Tweet posted! ID: ${tweetId}`);
-  console.log(`URL: https://x.com/i/status/${tweetId}`);
-
-  posted.push({
-    filename: targetFile,
-    tweetId,
-    postedAt: TODAY,
-    slug,
-  });
   await fs.writeFile(postedLogPath, JSON.stringify(posted, null, 2), "utf-8");
 }
 

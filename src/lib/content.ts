@@ -7,6 +7,7 @@ import type {
   BlogPostMeta,
   BlogPost,
   AuthorMeta,
+  ExternalArticle,
 } from "./types";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
@@ -105,4 +106,45 @@ export async function getAuthorMeta(): Promise<AuthorMeta> {
   const filePath = path.join(CONTENT_DIR, "meta", "author.json");
   const raw = await fs.readFile(filePath, "utf-8");
   return JSON.parse(raw) as AuthorMeta;
+}
+
+// --- External Articles (SNS posted logs) ---
+
+const PLATFORM_DIRS = ["devto", "qiita", "reddit", "twitter"] as const;
+
+export async function getExternalArticles(): Promise<ExternalArticle[]> {
+  const articles: ExternalArticle[] = [];
+
+  for (const platform of PLATFORM_DIRS) {
+    const logPath = path.join(CONTENT_DIR, "sns", platform, ".posted.json");
+    try {
+      const raw = await fs.readFile(logPath, "utf-8");
+      const entries = JSON.parse(raw) as Array<{
+        url?: string;
+        postedAt?: string;
+        slug?: string;
+      }>;
+      for (const entry of entries) {
+        if (entry.url && entry.slug) {
+          articles.push({
+            platform,
+            url: entry.url,
+            date: entry.postedAt || "",
+            slug: entry.slug,
+          });
+        }
+      }
+    } catch {
+      // no log file for this platform
+    }
+  }
+
+  return articles;
+}
+
+export async function getExternalArticlesForProject(
+  projectSlug: string
+): Promise<ExternalArticle[]> {
+  const all = await getExternalArticles();
+  return all.filter((a) => a.slug === projectSlug);
 }
