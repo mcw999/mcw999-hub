@@ -127,6 +127,14 @@
       "model": "claude-sonnet-4-6",
       "inputTokens": 1080,
       "outputTokens": 695
+    },
+    {
+      "date": "2026-02-23T14:21:20.765Z",
+      "platform": "devto",
+      "purpose": "Dev.to記事生成 (solve-their-problem)",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 613,
+      "outputTokens": 2509
     }
   ]
 }

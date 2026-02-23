@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-02-23T14:09:46.168Z",
+  "fetchedAt": "2026-02-23T14:21:23.829Z",
   "posts": [
     {
       "platform": "qiita",
@@ -55,6 +55,19 @@
     },
     {
       "platform": "devto",
+      "title": "Building an offline-first budget tracker in Flutter that actually works without internet",
+      "url": "https://dev.to/mcw999/building-an-offline-first-budget-tracker-in-flutter-that-actually-works-without-internet-3ioj",
+      "postId": "3278195",
+      "slug": "building-an-offline-first-budget-tracker-in-flutter-that-actually-works-without-internet-3ioj",
+      "postedAt": "2026-02-23",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": null,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "devto",
       "title": "Cryptocurrency Market Overheating and Cooling Detection System Built with Node.js + TypeScript",
       "url": "https://dev.to/mcw999/cryptocurrency-market-overheating-and-cooling-detection-system-built-with-nodejs-typescript-gd5",
       "postId": "3276125",
@@ -103,7 +116,7 @@
     },
     {
       "platform": "devto",
-      "totalPosts": 3,
+      "totalPosts": 4,
       "totalViews": 21,
       "totalLikes": 0,
       "totalComments": 0
