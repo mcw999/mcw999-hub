@@ -187,7 +187,7 @@ ${context}
 
 First line must be "TITLE: post title".`;
 
-  const model = "claude-sonnet-4-6-20250514";
+  const model = "claude-sonnet-4-6";
   const messages: Anthropic.MessageParam[] = [{ role: "user", content: prompt }];
   if (retryFeedback) {
     messages.push(
