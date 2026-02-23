@@ -1,0 +1,79 @@
+name: Daily Traffic Collection
+
+on:
+  schedule:
+    # 毎日 06:00 UTC (15:00 JST) にトラフィックデータを収集
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  collect-traffic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch traffic data from GitHub API
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p content/meta
+
+          # Fetch views
+          gh api repos/${{ github.repository }}/traffic/views > /tmp/views.json
+
+          # Fetch referrers
+          gh api repos/${{ github.repository }}/traffic/popular/referrers > /tmp/referrers.json
+
+          # Merge with existing history
+          node -e "
+          const fs = require('fs');
+          const views = JSON.parse(fs.readFileSync('/tmp/views.json', 'utf8'));
+          const referrers = JSON.parse(fs.readFileSync('/tmp/referrers.json', 'utf8'));
+
+          const historyPath = 'content/meta/traffic-history.json';
+          let existing = { fetchedAt: '', referrers: [], daily: [], totalViews: 0, totalUniques: 0 };
+          if (fs.existsSync(historyPath)) {
+            try { existing = JSON.parse(fs.readFileSync(historyPath, 'utf8')); } catch {}
+          }
+
+          // Merge daily data (overwrite overlapping dates)
+          const dailyMap = new Map();
+          for (const d of existing.daily || []) dailyMap.set(d.date, d);
+          for (const v of views.views || []) {
+            const date = v.timestamp.split('T')[0];
+            dailyMap.set(date, { date, count: v.count, uniques: v.uniques });
+          }
+          const daily = [...dailyMap.values()].sort((a, b) => a.date.localeCompare(b.date));
+
+          // Merge referrers (use latest snapshot)
+          const refMap = new Map();
+          for (const r of existing.referrers || []) refMap.set(r.referrer, r);
+          for (const r of referrers) refMap.set(r.referrer, { referrer: r.referrer, count: r.count, uniques: r.uniques });
+          const refs = [...refMap.values()].sort((a, b) => b.count - a.count);
+
+          const totalViews = daily.reduce((s, d) => s + d.count, 0);
+          const totalUniques = daily.reduce((s, d) => s + d.uniques, 0);
+
+          const result = {
+            fetchedAt: new Date().toISOString(),
+            referrers: refs,
+            daily,
+            totalViews,
+            totalUniques,
+          };
+
+          fs.writeFileSync(historyPath, JSON.stringify(result, null, 2));
+          console.log('Traffic data updated:', totalViews, 'views,', refs.length, 'referrers,', daily.length, 'days');
+          "
+
+      - name: Commit traffic data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add content/meta/traffic-history.json
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "chore: daily traffic update [$(date +%Y-%m-%d)]"
+          git push
