@@ -149,7 +149,7 @@ ${context}
 
 First line must be "TITLE: post title".`;
 
-  const model = "claude-sonnet-4-20250514";
+  const model = "claude-sonnet-4-6-20250620";
   const raw = await client.messages.create({
     model,
     max_tokens: 4096,

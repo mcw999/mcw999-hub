@@ -19,7 +19,7 @@ import { logUsage } from "./lib/usage-logger";
 import type { ProjectDefinition } from "../src/lib/types";
 
 const TODAY = new Date().toISOString().split("T")[0];
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "claude-sonnet-4-6-20250620";
 
 interface PostedEntry {
   filename: string;
@@ -53,9 +53,9 @@ const DEVTO_ANGLES = [
     instruction: "Share genuine lessons from your experience in the target audience's domain. What surprised you? What did you get wrong? Write as a peer sharing hard-won knowledge, not as someone promoting a product.",
   },
   {
-    id: "honest-comparison",
-    label: "Honest Comparison",
-    instruction: "Compare different approaches to a problem the target audience cares about. Be objective — include pros and cons of each approach including your own. Readers should be able to make their own informed decision.",
+    id: "technical-deep-dive",
+    label: "Technical Deep Dive",
+    instruction: "Pick a specific technical challenge you solved and explain the implementation in detail. Include code snippets, architecture decisions, and trade-offs. Readers should learn a transferable technique, not just about your project.",
   },
   {
     id: "beginner-guide",
@@ -89,13 +89,16 @@ Article angle: ${angle.label}
 ${angle.instruction}
 
 Rules:
-- You are NOT a marketer. You are a peer sharing what you know.
+- You are NOT a marketer. You are an engineer sharing what you know.
 - Write in natural, conversational English
 - The article must be useful to readers even if they never use your tool
 - Your tool/project may appear in context as "something I use/built", but it is NOT the focus
+- Include at least 2 code snippets showing real implementation
 - Use ${currentYear} for any year references
-- 800-1500 words
-- First line: "TITLE: your article title" (title should be what the target audience would search for)
+- 1500-2500 words (enough depth to be genuinely useful)
+- NEVER use ranking format ("Top N", "Best X tools", comparison tables with scores)
+- NEVER use clickbait brackets or superlatives in title
+- First line: "TITLE: your article title" (title should be what a developer would search for)
 - Second line: empty
 - Third line onward: article body in Markdown
 - Do NOT use placeholder text, TODO markers, or incomplete sections${titleExclusion}`;
