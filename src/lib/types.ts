@@ -34,6 +34,14 @@ export interface ProjectDefinition {
   callToActionUrl?: string;    // CTAのリンク先
   promotionKeywords?: string[]; // SNS投稿に使うキーワード（技術用語ではなく業界用語）
 
+  // 一次素材: 実体験・実測データ・観察メモ（AI生成の質を上げる核）
+  sourceNotes?: {
+    experiences?: string[];     // 体験ログ（例: "バックテストで勝率58%→63%に改善した"）
+    observations?: string[];    // 観察メモ（例: "BTC過熱度が90超えた翌日の下落確率は72%"）
+    metrics?: string[];         // 実測データ（例: "API応答時間: 平均120ms, P99: 450ms"）
+    failures?: string[];        // 失敗談（例: "RSI単体では誤検出が多く、複合指標に切り替えた"）
+  };
+
   schedule?: {
     frequency: "weekly" | "biweekly" | "monthly";
     platforms: ("twitter" | "zenn" | "qiita" | "blog" | "devto" | "reddit")[];

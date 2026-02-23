@@ -111,10 +111,48 @@ const SUBREDDIT_PROMPTS: Record<string, string> = {
   SaaS: `Discuss the business and technical aspects of building a SaaS product. Share metrics, user feedback, technical architecture decisions, and lessons from the journey.`,
 };
 
+// --- バリデーション ---
+function validateRedditPost(title: string, body: string): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (!title || title === "TITLE:") {
+    errors.push("Title is empty");
+  }
+
+  // Promotional language
+  const promoPatterns = [
+    /check it out/i, /try it/i, /download/i, /sign up/i,
+    /link in bio/i, /launching/i, /just released/i,
+  ];
+  for (const pattern of promoPatterns) {
+    if (pattern.test(body)) {
+      errors.push(`Promotional language: "${body.match(pattern)?.[0]}"`);
+    }
+  }
+
+  // Links in body (forbidden)
+  if (/https?:\/\//.test(body)) {
+    errors.push("Body contains URLs (forbidden for Reddit posts)");
+  }
+
+  // Fake scores
+  if (/\d+\.?\d*\s*\/\s*(?:10|100)/i.test(body)) {
+    errors.push("Fake score detected in body");
+  }
+
+  // Too short
+  if (body.split(/\s+/).length < 100) {
+    errors.push(`Body too short: ~${body.split(/\s+/).length} words (min 500)`);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 async function generateRedditPost(
   client: Anthropic,
   project: ProjectDefinition,
-  targetSubreddit: string
+  targetSubreddit: string,
+  retryFeedback?: string
 ): Promise<{ title: string; body: string }> {
   const context = projectContextFull(project);
   const subredditContext = SUBREDDIT_PROMPTS[targetSubreddit] || SUBREDDIT_PROMPTS.sideproject;
@@ -150,14 +188,22 @@ ${context}
 First line must be "TITLE: post title".`;
 
   const model = "claude-sonnet-4-6-20250620";
+  const messages: Anthropic.MessageParam[] = [{ role: "user", content: prompt }];
+  if (retryFeedback) {
+    messages.push(
+      { role: "assistant", content: "(Previous output failed validation)" },
+      { role: "user", content: `Fix these issues and regenerate:\n\n${retryFeedback}` }
+    );
+  }
+
   const raw = await client.messages.create({
     model,
     max_tokens: 4096,
-    messages: [{ role: "user", content: prompt }],
+    messages,
     system,
   });
 
-  await logUsage("reddit", `Reddit投稿生成 (r/${targetSubreddit})`, model, raw.usage);
+  await logUsage("reddit", retryFeedback ? `Reddit投稿再生成 (r/${targetSubreddit})` : `Reddit投稿生成 (r/${targetSubreddit})`, model, raw.usage);
 
   const text = raw.content[0].type === "text" ? raw.content[0].text : "";
   const lines = text.split("\n");
@@ -238,9 +284,22 @@ async function main() {
     }
   }
 
-  // Reddit投稿を生成（サブレディット別プロンプト使用）
+  // Reddit投稿を生成（サブレディット別プロンプト使用 + バリデーション + リトライ）
   console.log(`Generating Reddit post for r/${targetSubreddit}...`);
-  const post = await generateRedditPost(client, targetProject, targetSubreddit);
+  let post = await generateRedditPost(client, targetProject, targetSubreddit);
+
+  let validation = validateRedditPost(post.title, post.body);
+  if (!validation.valid) {
+    console.log(`Validation failed: ${validation.errors.join(", ")}`);
+    console.log("Retrying with feedback...");
+    post = await generateRedditPost(client, targetProject, targetSubreddit, validation.errors.join("\n"));
+    validation = validateRedditPost(post.title, post.body);
+    if (!validation.valid) {
+      console.error(`Retry also failed: ${validation.errors.join(", ")}`);
+      console.error("Skipping Reddit post due to validation failure.");
+      process.exit(1);
+    }
+  }
 
   // 投稿を保存
   const contentFilename = `${TODAY}-${targetProject.slug}.json`;

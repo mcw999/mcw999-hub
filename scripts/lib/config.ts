@@ -87,6 +87,32 @@ export async function savePublishedLog(log: Record<string, string[]>) {
 }
 
 /**
+ * 一次素材セクションの生成（体験ログ・実測データ・観察・失敗談）
+ * これが空の場合、AIは一般論しか書けないため品質が下がる
+ */
+function formatSourceNotes(project: any): string {
+  const notes = project.sourceNotes;
+  if (!notes) return "";
+
+  const sections: string[] = [];
+  if (notes.experiences?.length) {
+    sections.push(`【実体験】\n${notes.experiences.map((e: string) => `- ${e}`).join("\n")}`);
+  }
+  if (notes.observations?.length) {
+    sections.push(`【観察・発見】\n${notes.observations.map((o: string) => `- ${o}`).join("\n")}`);
+  }
+  if (notes.metrics?.length) {
+    sections.push(`【実測データ】\n${notes.metrics.map((m: string) => `- ${m}`).join("\n")}`);
+  }
+  if (notes.failures?.length) {
+    sections.push(`【失敗・試行錯誤】\n${notes.failures.map((f: string) => `- ${f}`).join("\n")}`);
+  }
+
+  if (sections.length === 0) return "";
+  return `\n\n--- 一次素材（実際のデータ・体験。記事の核にすること） ---\n${sections.join("\n\n")}`;
+}
+
+/**
  * Twitter投稿用のプロジェクトコンテキスト
  * techStackを除外し、ユーザー視点の情報のみ提供
  */
@@ -99,9 +125,8 @@ export function projectContextForTwitter(project: any): string {
 解決策: ${project.solutionJa || project.solution || "未設定"}
 主な機能:
 ${(project.features || []).map((f: any) => `- ${f.titleJa || f.title}`).join("\n")}
-CTA: ${project.callToAction || "詳しくはこちら"}
-URL: ${project.callToActionUrl || project.liveUrl || project.repositoryUrl || ""}
 ハッシュタグ候補: ${(project.promotionKeywords || project.tags || []).join(", ")}
+${formatSourceNotes(project)}
 `.trim();
 }
 
@@ -121,5 +146,6 @@ ${(project.features || []).map((f: any) => `- ${f.titleJa || f.title}: ${f.descr
 CTA: ${project.callToAction || "詳しくはこちら"}
 URL: ${project.callToActionUrl || project.liveUrl || project.repositoryUrl || ""}
 SNSキーワード: ${(project.promotionKeywords || project.tags || []).join(", ")}
+${formatSourceNotes(project)}
 `.trim();
 }

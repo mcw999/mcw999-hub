@@ -69,11 +69,71 @@ const DEVTO_ANGLES = [
   },
 ];
 
+// --- バリデーション ---
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+function validateDevtoArticle(title: string, body: string): ValidationResult {
+  const errors: string[] = [];
+
+  if (!title || title === "TITLE:") {
+    errors.push("Title is empty");
+  }
+
+  // Ranking/listicle format
+  const bannedTitlePatterns = [
+    /top\s*\d+/i, /best\s*\d+/i, /\d+\s*(?:tools|ways|tips|things)/i,
+    /ranking/i, /comparison.*score/i,
+  ];
+  for (const pattern of bannedTitlePatterns) {
+    if (pattern.test(title)) {
+      errors.push(`Banned title pattern: ${title.match(pattern)?.[0]}`);
+    }
+  }
+
+  // Fake scores in body
+  const fakeScorePatterns = [
+    /\d+\.?\d*\s*\/\s*(?:10|100)\s*(?:points?|stars?)/gi,
+    /(?:score|rating):\s*\d+\.?\d*\s*\/\s*\d+/gi,
+    /★{2,}|⭐{2,}/g,
+  ];
+  for (const pattern of fakeScorePatterns) {
+    if (pattern.test(body)) {
+      errors.push(`Fake score detected: ${body.match(pattern)?.[0]}`);
+    }
+  }
+
+  // Old year
+  const currentYear = new Date().getFullYear();
+  const yearMatch = title.match(/\b(20[0-9]{2})\b/);
+  if (yearMatch && parseInt(yearMatch[1]) < currentYear) {
+    errors.push(`Outdated year in title: ${yearMatch[1]}`);
+  }
+
+  // Ad language
+  const adPatterns = [/check it out/i, /sign up now/i, /don't miss/i, /must-have/i];
+  for (const pattern of adPatterns) {
+    if (pattern.test(body)) {
+      errors.push(`Promotional language: ${body.match(pattern)?.[0]}`);
+    }
+  }
+
+  // Minimum length
+  if (body.length < 1000) {
+    errors.push(`Body too short: ${body.length} chars (min 1500 words expected)`);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 async function generateDevtoArticle(
   client: Anthropic,
   project: ProjectDefinition,
   angle: (typeof DEVTO_ANGLES)[number],
-  existingTitles: string[]
+  existingTitles: string[],
+  retryFeedback?: string
 ): Promise<{ title: string; body: string }> {
   const context = projectContextFull(project);
   const stack = (project.techStack || []).join(", ");
@@ -113,14 +173,22 @@ ${context}
 
 First line must be "TITLE: your article title".`;
 
+  const messages: Anthropic.MessageParam[] = [{ role: "user", content: prompt }];
+  if (retryFeedback) {
+    messages.push(
+      { role: "assistant", content: "(Previous output failed validation)" },
+      { role: "user", content: `The previous output had these issues. Fix them and regenerate:\n\n${retryFeedback}\n\nFollow the original instructions and produce a complete, corrected output.` }
+    );
+  }
+
   const raw = await client.messages.create({
     model: MODEL,
     max_tokens: 4096,
-    messages: [{ role: "user", content: prompt }],
+    messages,
     system,
   });
 
-  await logUsage("devto", `Dev.to記事生成 (${angle.id})`, MODEL, raw.usage);
+  await logUsage("devto", retryFeedback ? `Dev.to記事再生成 (${angle.id})` : `Dev.to記事生成 (${angle.id})`, MODEL, raw.usage);
 
   const text = raw.content[0].type === "text" ? raw.content[0].text : "";
   const lines = text.split("\n");
@@ -245,13 +313,36 @@ async function main() {
   console.log(`Article angle: ${angle.label}`);
 
   console.log("Generating Dev.to article (native English)...");
-  const { title, body } = await generateDevtoArticle(
+  let { title, body } = await generateDevtoArticle(
     client,
     targetProject,
     angle,
     existingTitles
   );
   console.log(`Generated title: ${title}`);
+
+  // バリデーション + リトライ
+  let validation = validateDevtoArticle(title, body);
+  if (!validation.valid) {
+    console.log(`Validation failed: ${validation.errors.join(", ")}`);
+    console.log("Retrying with feedback...");
+    const retry = await generateDevtoArticle(
+      client,
+      targetProject,
+      angle,
+      existingTitles,
+      validation.errors.join("\n")
+    );
+    title = retry.title;
+    body = retry.body;
+    validation = validateDevtoArticle(title, body);
+    if (!validation.valid) {
+      console.error(`Retry also failed: ${validation.errors.join(", ")}`);
+      console.error("Skipping Dev.to post due to validation failure.");
+      process.exit(1);
+    }
+    console.log(`Retry title: ${title}`);
+  }
 
   // 生成結果を保存
   const tags = mapToDevtoTags(targetProject);

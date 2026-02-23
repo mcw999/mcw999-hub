@@ -93,31 +93,32 @@ const QIITA_ANGLES = [
 ];
 
 // --- Twitter 5パターン定義 ---
+// 注: 煽り・上から目線パターンは排除。同じ立場のユーザーとしての自然な投稿のみ。
 const TWEET_PATTERNS = [
   {
-    id: "problem",
-    label: "課題提起型",
-    instruction: "ターゲットユーザーが「あるある！」と共感する悩みや不便から始め、解決策としてアプリを紹介する。「○○で困っていませんか？」「○○あるある」のような切り出し。",
+    id: "empathy",
+    label: "共感型",
+    instruction: "ターゲットユーザーが「あるある！」と共感する日常の悩みや体験を共有する。自分もその1人として語る。アプリの紹介は不要。",
   },
   {
-    id: "benefit",
-    label: "メリット訴求型",
-    instruction: "アプリを使うことで得られるメリットや変化を前面に出す。「○○ができるようになった」「○○が不要になる」のようなポジティブな表現。",
+    id: "discovery",
+    label: "気づき共有型",
+    instruction: "自分が最近気づいたこと・学んだことを共有する。「○○に気づいた」「○○を試してみたら面白い結果が出た」のような発見の共有。",
   },
   {
     id: "experience",
-    label: "体験談風",
-    instruction: "実際に使った体験談の形式。「○○してみたら、想像以上に○○だった」「○○を始めて1週間、○○が変わった」のような一人称の語り口。",
+    label: "体験談型",
+    instruction: "実際にやってみた体験を正直に共有する。成功も失敗も含める。「○○してみた結果」のような一人称の語り口。一次素材があればそれを使う。",
   },
   {
-    id: "data",
-    label: "数字・データ型",
-    instruction: "具体的な数字やデータを含めて説得力を高める。「○○%の人が○○」「○○銘柄を○○秒で分析」のような定量的な表現。数字は機能から推測して自然に使う。",
+    id: "tip",
+    label: "ワンポイントTips型",
+    instruction: "ターゲットユーザーに役立つ小さなTipsやコツを共有する。「○○するときは○○すると楽」のような実用的な情報。",
   },
   {
-    id: "question",
-    label: "質問型",
-    instruction: "読者に問いかけて興味を引く。「○○って知ってた？」「まだ○○してるの？」のような疑問文から始まり、答えとしてアプリを紹介する。",
+    id: "reflection",
+    label: "振り返り型",
+    instruction: "自分の取り組みや結果を振り返って気づきを共有する。「○○を続けて分かったこと」「以前は○○だったけど今は○○」のような成長や変化の記録。",
   },
 ];
 
@@ -162,12 +163,23 @@ function projectContextForTech(project: any): string {
 async function generateWithClaude(
   client: Anthropic,
   systemPrompt: string,
-  userPrompt: string
+  userPrompt: string,
+  retryFeedback?: string
 ): Promise<{ text: string; usage: { input_tokens: number; output_tokens: number } }> {
+  const messages: Anthropic.MessageParam[] = [{ role: "user", content: userPrompt }];
+
+  // リトライ時: 前回の出力とバリデーションエラーをフィードバックして再生成
+  if (retryFeedback) {
+    messages.push(
+      { role: "assistant", content: "(前回の出力がバリデーションに失敗しました)" },
+      { role: "user", content: `前回の出力に以下の問題がありました。これらを修正して再生成してください:\n\n${retryFeedback}\n\n元の指示に従って、問題を修正した完全な出力を生成してください。` }
+    );
+  }
+
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: 4096,
-    messages: [{ role: "user", content: userPrompt }],
+    messages,
     system: systemPrompt,
   });
   const block = response.content[0];
@@ -254,6 +266,15 @@ async function generateTweets(
 - 改行を活用して読みやすくする
 - ツイート本文のみを出力（説明不要）
 
+絶対禁止（これらは即スルーされる）:
+- 「まだ○○してるの？」「○○って知ってた？」等の上から目線・煽り表現
+- 「今すぐ」「必見」「驚きの」「革命的」等の広告ワード
+- 「○○%の人が○○」等の出典不明な統計
+- アプリの直接的な売り込み・勧誘
+
+一次素材（体験ログ、実測データ等）が提供されている場合は、それを核にして具体的なツイートにする。
+一次素材がない場合は、ターゲットユーザーの日常あるあるや共感ネタに徹する。
+
 以下の形式で出力してください:
 
 STANDALONE-1:
@@ -263,17 +284,17 @@ STANDALONE-2:
 [気づき型: ターゲットの関心領域に関する有益な情報や発見]
 ===
 THREAD-1:
-[フック: ターゲットが思わず読みたくなる問いかけや体験の導入]
+[フック: ターゲットが思わず読みたくなる体験の導入。煽りではなく正直な語り出し]
 THREAD-2:
-[展開: 自分の体験を具体的に共有]
+[展開: 自分の体験を具体的に共有。一次素材があればそれを使う]
 THREAD-3:
 [まとめ: 学びや気づきを共有し、最後に「詳しくはブログに書いた」としてブログURLを1つ載せる]`;
 
   const blogUrl = blogArticleUrl(project.slug);
 
-  const prompt = `以下のアプリのターゲットユーザーになりきって、ターゲットが共感・反応するツイートを書いてください。
-宣伝ではなく、同じ立場の人間としての投稿です。
-独立ツイートにはURLは不要です。スレッドの最後（THREAD-3）にだけ、ブログ記事へのリンクを自然に含めてください。
+  const prompt = `以下のターゲットユーザーになりきって、同じ立場の人間が日常で投稿しそうなツイートを書いてください。
+これは宣伝ではありません。同じ関心を持つ人同士の自然な会話です。
+独立ツイートにはURLは不要です。スレッドの最後（THREAD-3）にだけ、「ブログに詳しく書いた」として以下のURLを自然に含めてください。
 
 ブログURL: ${blogUrl}
 
@@ -312,7 +333,8 @@ ${context}
 async function generateZennArticle(
   client: Anthropic,
   project: ProjectDefinition,
-  angle: (typeof ZENN_ANGLES)[number]
+  angle: (typeof ZENN_ANGLES)[number],
+  retryFeedback?: string
 ): Promise<string> {
   const context = projectContextFull(project);
   const techContext = projectContextForTech(project);
@@ -373,8 +395,8 @@ topics: [${topics.map((k) => `"${k}"`).join(", ")}]
 published: true
 ---`;
 
-  const result = await generateWithClaude(client, system, prompt);
-  await logUsage("zenn", "Zenn記事生成", MODEL, result.usage);
+  const result = await generateWithClaude(client, system, prompt, retryFeedback);
+  await logUsage("zenn", retryFeedback ? "Zenn記事再生成" : "Zenn記事生成", MODEL, result.usage);
   return result.text;
 }
 
@@ -383,7 +405,8 @@ async function generateQiitaArticle(
   client: Anthropic,
   project: ProjectDefinition,
   angle: (typeof QIITA_ANGLES)[number],
-  zennAngleId: string
+  zennAngleId: string,
+  retryFeedback?: string
 ): Promise<{ title: string; body: string; tags: string[] }> {
   const keywords = (project.promotionKeywords || project.tags).slice(0, 5);
   const context = projectContextFull(project);
@@ -437,8 +460,8 @@ ${techContext}
 
 最初の行は「TITLE: 記事タイトル」としてください。`;
 
-  const result = await generateWithClaude(client, system, prompt);
-  await logUsage("qiita", "Qiita記事生成", MODEL, result.usage);
+  const result = await generateWithClaude(client, system, prompt, retryFeedback);
+  await logUsage("qiita", retryFeedback ? "Qiita記事再生成" : "Qiita記事生成", MODEL, result.usage);
   const lines = result.text.split("\n");
   const title = lines[0].replace(/^TITLE:\s*/, "").trim();
   const body = lines.slice(2).join("\n");
@@ -449,7 +472,8 @@ ${techContext}
 // --- ブログ: アプリの使い方・活用事例 ---
 async function generateBlogPost(
   client: Anthropic,
-  project: ProjectDefinition
+  project: ProjectDefinition,
+  retryFeedback?: string
 ): Promise<string> {
   const slug = `${project.slug}-guide`;
   const context = projectContextFull(project);
@@ -488,8 +512,8 @@ project: "${project.slug}"
 published: true
 ---`;
 
-  const result = await generateWithClaude(client, system, prompt);
-  await logUsage("blog", "ブログ記事生成", MODEL, result.usage);
+  const result = await generateWithClaude(client, system, prompt, retryFeedback);
+  await logUsage("blog", retryFeedback ? "ブログ記事再生成" : "ブログ記事生成", MODEL, result.usage);
   return result.text;
 }
 
@@ -498,6 +522,62 @@ interface ValidationResult {
   valid: boolean;
   errors: string[];
   warnings: string[];
+}
+
+/**
+ * 記事本文の共通バリデーション（Zenn/Qiita/Blog共通）
+ * ランキング形式、架空スコア、広告表現を検出する
+ */
+function validateArticleBody(body: string, errors: string[], warnings: string[]) {
+  // ランキング形式の検出（本文内）
+  const rankingPatterns = [
+    { pattern: /第[1-9１-９一二三四五六七八九十]位[：:]/gm, label: "ランキング形式（第N位）" },
+    { pattern: /(?:TOP|top)\s*\d+/g, label: "ランキング形式（TOP N）" },
+    { pattern: /おすすめ.*ランキング/g, label: "ランキング形式" },
+    { pattern: /\d+選/g, label: "N選形式" },
+    { pattern: /★{2,}|☆{2,}|⭐{2,}/g, label: "星評価（架空レーティング）" },
+  ];
+  for (const { pattern, label } of rankingPatterns) {
+    if (pattern.test(body)) {
+      errors.push(`本文に禁止形式: ${label}`);
+    }
+  }
+
+  // 架空スコア・点数の検出
+  const fakeScorePatterns = [
+    { pattern: /総合[スコア評価点数].*?[0-9]+\.?[0-9]*\s*[点\/]/g, label: "架空の総合スコア" },
+    { pattern: /[0-9]+\.?[0-9]*\s*\/\s*(?:10|100)\s*点/g, label: "架空の点数評価" },
+    { pattern: /[0-9]+\.?[0-9]*点\s*[（(][0-9]+点満点/g, label: "架空の満点評価" },
+    { pattern: /評価[:：]\s*[0-9]+\.?[0-9]*\s*\/\s*[0-9]+/g, label: "架空のスコア" },
+  ];
+  for (const { pattern, label } of fakeScorePatterns) {
+    if (pattern.test(body)) {
+      errors.push(`架空データ検出: ${label}`);
+    }
+  }
+
+  // 広告的な煽り表現
+  const adPatterns = [
+    { pattern: /今すぐ(?:始|試|ダウンロード|登録)/g, label: "広告表現「今すぐ〜」" },
+    { pattern: /(?:必見|見逃せない|要チェック)[！!]?/g, label: "煽り表現" },
+    { pattern: /圧倒的|驚異的|革命的|画期的/g, label: "誇大表現" },
+  ];
+  for (const { pattern, label } of adPatterns) {
+    if (pattern.test(body)) {
+      warnings.push(`広告的表現: ${label}`);
+    }
+  }
+
+  // 古い年号チェック（本文内）
+  const currentYear = new Date().getFullYear();
+  const yearMatches = body.matchAll(/\b(20[0-9]{2})年/g);
+  for (const match of yearMatches) {
+    const year = parseInt(match[1]);
+    if (year < currentYear) {
+      errors.push(`古い年号: ${year}年 → ${currentYear}年に修正が必要`);
+      break; // 1つ見つければ十分
+    }
+  }
 }
 
 function validateTweet(tweet: string): ValidationResult {
@@ -517,6 +597,25 @@ function validateTweet(tweet: string): ValidationResult {
   for (const term of techTerms) {
     if (tweet.toLowerCase().includes(term.toLowerCase())) {
       errors.push(`技術用語「${term}」が含まれています`);
+    }
+  }
+
+  // 煽り・広告表現チェック
+  const adPatterns = [
+    { pattern: /まだ.{1,10}してるの/, label: "煽り表現「まだ〜してるの」" },
+    { pattern: /知ってた？/, label: "煽り表現「知ってた？」" },
+    { pattern: /今すぐ/, label: "広告ワード「今すぐ」" },
+    { pattern: /必見/, label: "広告ワード「必見」" },
+    { pattern: /驚きの/, label: "広告ワード「驚きの」" },
+    { pattern: /革命的/, label: "広告ワード「革命的」" },
+    { pattern: /[0-9]+%の人が/, label: "出典不明な統計" },
+    { pattern: /今なら/, label: "広告ワード「今なら」" },
+    { pattern: /無料で/, label: "広告ワード「無料で」" },
+    { pattern: /チェック[!！]/, label: "広告ワード「チェック！」" },
+  ];
+  for (const { pattern, label } of adPatterns) {
+    if (pattern.test(tweet)) {
+      errors.push(`禁止表現: ${label}`);
     }
   }
 
@@ -559,6 +658,10 @@ function validateZennArticle(content: string): ValidationResult {
       warnings.push(`本文が短い可能性: ${bodyLength}文字 (推奨: 1500-3000)`);
     }
   }
+
+  // 本文レベルのランキング・架空データチェック
+  const bodyContent = bodyMatch?.[1] || content;
+  validateArticleBody(bodyContent, errors, warnings);
 
   return { valid: errors.length === 0, errors, warnings };
 }
@@ -618,6 +721,9 @@ function validateQiitaArticle(article: {
     }
   }
 
+  // 本文レベルのランキング・架空データチェック
+  validateArticleBody(article.body, errors, warnings);
+
   return { valid: errors.length === 0, errors, warnings };
 }
 
@@ -639,6 +745,10 @@ function validateBlogPost(content: string): ValidationResult {
       errors.push(`プレースホルダーが残っています: ${content.match(pattern)?.[0]}`);
     }
   }
+
+  // 本文レベルのランキング・架空データチェック
+  const bodyMatch = content.match(/^---[\s\S]*?---\n([\s\S]*)$/);
+  validateArticleBody(bodyMatch?.[1] || content, errors, warnings);
 
   return { valid: errors.length === 0, errors, warnings };
 }
@@ -772,18 +882,31 @@ async function main() {
   console.log(`  保存: ${validStandalone.length}件の独立ツイート\n`);
   }
 
-  // 2. Zenn記事生成
+  // 2. Zenn記事生成（バリデーション失敗時は1回リトライ）
   if (!schedulePlatforms.includes("zenn")) {
     console.log("Zenn: スケジュール対象外のためスキップ\n");
   } else {
   console.log("Zenn記事生成中...");
-  const zennArticle = await generateZennArticle(
+  let zennArticle = await generateZennArticle(
     client,
     targetProject,
     zennAngle
   );
-  const zennValidation = validateZennArticle(zennArticle);
-  logValidation("Zenn記事", zennValidation);
+  let zennValidation = validateZennArticle(zennArticle);
+  logValidation("Zenn記事 (1回目)", zennValidation);
+
+  if (!zennValidation.valid) {
+    console.log("  ↳ リトライ中（バリデーションエラーをフィードバック）...");
+    const feedback = zennValidation.errors.join("\n");
+    zennArticle = await generateZennArticle(
+      client,
+      targetProject,
+      zennAngle,
+      feedback
+    );
+    zennValidation = validateZennArticle(zennArticle);
+    logValidation("Zenn記事 (リトライ)", zennValidation);
+  }
 
   if (zennValidation.valid) {
     const zennSlug = `${TODAY.replace(/-/g, "")}-${targetProject.slug}`;
@@ -796,23 +919,38 @@ async function main() {
     console.log(`  保存: articles/${zennSlug}.md\n`);
   } else {
     hasErrors = true;
-    console.error("  Zenn記事はバリデーション失敗のためスキップ\n");
+    console.error("  Zenn記事はリトライ後もバリデーション失敗のためスキップ\n");
   }
   }
 
-  // 3. Qiita記事生成
+  // 3. Qiita記事生成（バリデーション失敗時は1回リトライ）
   if (!schedulePlatforms.includes("qiita")) {
     console.log("Qiita: スケジュール対象外のためスキップ\n");
   } else {
   console.log("Qiita記事生成中...");
-  const qiitaArticle = await generateQiitaArticle(
+  let qiitaArticle = await generateQiitaArticle(
     client,
     targetProject,
     qiitaAngle,
     zennAngle.id
   );
-  const qiitaValidation = validateQiitaArticle(qiitaArticle);
-  logValidation("Qiita記事", qiitaValidation);
+  let qiitaValidation = validateQiitaArticle(qiitaArticle);
+  logValidation("Qiita記事 (1回目)", qiitaValidation);
+
+  // バリデーション失敗時: エラー内容をフィードバックして再生成
+  if (!qiitaValidation.valid) {
+    console.log("  ↳ リトライ中（バリデーションエラーをフィードバック）...");
+    const feedback = qiitaValidation.errors.join("\n");
+    qiitaArticle = await generateQiitaArticle(
+      client,
+      targetProject,
+      qiitaAngle,
+      zennAngle.id,
+      feedback
+    );
+    qiitaValidation = validateQiitaArticle(qiitaArticle);
+    logValidation("Qiita記事 (リトライ)", qiitaValidation);
+  }
 
   if (qiitaValidation.valid) {
     const qiitaDir = path.join(CONTENT_DIR, "sns", "qiita");
@@ -827,18 +965,26 @@ async function main() {
     );
   } else {
     hasErrors = true;
-    console.error("  Qiita記事はバリデーション失敗のためスキップ\n");
+    console.error("  Qiita記事はリトライ後もバリデーション失敗のためスキップ\n");
   }
   }
 
-  // 4. ブログ記事生成
+  // 4. ブログ記事生成（バリデーション失敗時は1回リトライ）
   if (!schedulePlatforms.includes("blog")) {
     console.log("Blog: スケジュール対象外のためスキップ\n");
   } else {
   console.log("ブログ記事生成中...");
-  const blogPost = await generateBlogPost(client, targetProject);
-  const blogValidation = validateBlogPost(blogPost);
-  logValidation("ブログ記事", blogValidation);
+  let blogPost = await generateBlogPost(client, targetProject);
+  let blogValidation = validateBlogPost(blogPost);
+  logValidation("ブログ記事 (1回目)", blogValidation);
+
+  if (!blogValidation.valid) {
+    console.log("  ↳ リトライ中（バリデーションエラーをフィードバック）...");
+    const feedback = blogValidation.errors.join("\n");
+    blogPost = await generateBlogPost(client, targetProject, feedback);
+    blogValidation = validateBlogPost(blogPost);
+    logValidation("ブログ記事 (リトライ)", blogValidation);
+  }
 
   if (blogValidation.valid) {
     const blogDir = path.join(CONTENT_DIR, "blog");
@@ -853,7 +999,7 @@ async function main() {
     );
   } else {
     hasErrors = true;
-    console.error("  ブログ記事はバリデーション失敗のためスキップ\n");
+    console.error("  ブログ記事はリトライ後もバリデーション失敗のためスキップ\n");
   }
   }
 
