@@ -10,6 +10,14 @@ const NAV_LINKS = [
   { en: "About", ja: "概要", href: "/about" },
 ];
 
+const EXTERNAL_LINKS = [
+  { label: "GitHub", href: "https://github.com/mcw999", icon: "github" },
+  { label: "Qiita", href: "https://qiita.com/mcw999", icon: "qiita" },
+  { label: "Dev.to", href: "https://dev.to/mcw999", icon: "devto" },
+  { label: "Zenn", href: "https://zenn.dev/mcw999", icon: "zenn" },
+  { label: "X (Twitter)", href: "https://x.com/mcw999", icon: "twitter" },
+];
+
 export function Footer() {
   const { locale } = useLocale();
 
@@ -51,22 +59,25 @@ export function Footer() {
             </nav>
           </div>
 
-          {/* External */}
+          {/* External links */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
               <T ja="リンク" en="Links" />
             </h4>
             <nav className="flex flex-col gap-2.5">
-              <a
-                href="https://github.com/mcw999"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors w-fit"
-              >
-                <Github size={14} />
-                GitHub
-                <ArrowUpRight size={11} className="opacity-50" />
-              </a>
+              {EXTERNAL_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors w-fit"
+                >
+                  {link.icon === "github" && <Github size={14} />}
+                  {link.label}
+                  <ArrowUpRight size={11} className="opacity-50" />
+                </a>
+              ))}
             </nav>
           </div>
         </div>
