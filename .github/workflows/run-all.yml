@@ -34,7 +34,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Step 1: Claude APIでコンテンツ自動生成（Twitter5本 + Zenn + Qiita + Blog）
+      # Step 1: Claude APIでコンテンツ自動生成（Bluesky + Mastodon + Hashnode + Zenn + Qiita + Blog）
       - name: Generate content with Claude API
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -61,27 +61,50 @@ jobs:
           TARGET_PLATFORMS: ${{ inputs.target_platforms }}
         run: npx tsx scripts/post-devto.ts
 
-      # Step 4: Twitterにツイート投稿
-      - name: Post to Twitter
+      # Step 4: Hashnodeに投稿
+      - name: Post to Hashnode
         if: always()
         env:
-          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
-          TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
-          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          HASHNODE_PAT: ${{ secrets.HASHNODE_PAT }}
           TARGET_SLUG: ${{ inputs.target_slug }}
           TARGET_PLATFORMS: ${{ inputs.target_platforms }}
-        run: npx tsx scripts/post-twitter.ts
+        run: npx tsx scripts/post-hashnode.ts
 
-      # Step 5: アナリティクス取得
+      # Step 5: Blueskyに投稿
+      - name: Post to Bluesky
+        if: always()
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          TARGET_SLUG: ${{ inputs.target_slug }}
+          TARGET_PLATFORMS: ${{ inputs.target_platforms }}
+        run: npx tsx scripts/post-bluesky.ts
+
+      # Step 6: Mastodonに投稿
+      - name: Post to Mastodon
+        if: always()
+        env:
+          MASTODON_INSTANCE: ${{ secrets.MASTODON_INSTANCE }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          TARGET_SLUG: ${{ inputs.target_slug }}
+          TARGET_PLATFORMS: ${{ inputs.target_platforms }}
+        run: npx tsx scripts/post-mastodon.ts
+
+      # Step 7: アナリティクス取得
       - name: Fetch analytics
         if: always()
         env:
           QIITA_API_TOKEN: ${{ secrets.QIITA_API_TOKEN }}
           DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+          HASHNODE_PAT: ${{ secrets.HASHNODE_PAT }}
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          MASTODON_INSTANCE: ${{ secrets.MASTODON_INSTANCE }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
         run: npx tsx scripts/fetch-analytics.ts
 
-      # Step 6: コミット＆プッシュ（Zenn自動同期 + Blog自動デプロイがトリガーされる）
+      # Step 8: コミット＆プッシュ（Zenn自動同期 + Blog自動デプロイがトリガーされる）
       - name: Commit and push
         if: always()
         run: |

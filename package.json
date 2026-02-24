@@ -12,9 +12,11 @@
     "new:project": "tsx scripts/new-project.ts",
     "new:post": "tsx scripts/new-blog-post.ts",
     "auto:generate": "tsx scripts/auto-generate.ts",
-    "auto:twitter": "tsx scripts/post-twitter.ts",
+    "auto:bluesky": "tsx scripts/post-bluesky.ts",
+    "auto:mastodon": "tsx scripts/post-mastodon.ts",
+    "auto:hashnode": "tsx scripts/post-hashnode.ts",
     "auto:qiita": "tsx scripts/post-qiita.ts",
-    "auto:all": "tsx scripts/auto-generate.ts && tsx scripts/post-twitter.ts && tsx scripts/post-qiita.ts",
+    "auto:all": "tsx scripts/auto-generate.ts && tsx scripts/post-qiita.ts && tsx scripts/post-bluesky.ts && tsx scripts/post-mastodon.ts && tsx scripts/post-hashnode.ts",
     "analytics": "node --env-file=.env node_modules/.bin/tsx scripts/fetch-analytics.ts",
     "verify": "tsx scripts/verify-setup.ts"
   },
@@ -29,8 +31,7 @@
     "reading-time": "^1.5.0",
     "rehype-highlight": "^7.0.2",
     "rehype-slug": "^6.0.0",
-    "remark-gfm": "^4.0.1",
-    "twitter-api-v2": "^1.29.0"
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

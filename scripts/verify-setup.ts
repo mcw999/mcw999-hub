@@ -4,7 +4,6 @@
  * アカウント作成後、最初に実行するスクリプト。
  */
 import Anthropic from "@anthropic-ai/sdk";
-import { TwitterApi } from "twitter-api-v2";
 
 interface CheckResult {
   name: string;
@@ -29,26 +28,6 @@ async function checkClaude(): Promise<CheckResult> {
   }
 }
 
-async function checkTwitter(): Promise<CheckResult> {
-  const { TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_SECRET } = process.env;
-  if (!TWITTER_API_KEY || !TWITTER_API_SECRET || !TWITTER_ACCESS_TOKEN || !TWITTER_ACCESS_SECRET) {
-    return { name: "Twitter/X API", ok: false, message: "Twitter環境変数が未設定" };
-  }
-  try {
-    const client = new TwitterApi({
-      appKey: TWITTER_API_KEY,
-      appSecret: TWITTER_API_SECRET,
-      accessToken: TWITTER_ACCESS_TOKEN,
-      accessSecret: TWITTER_ACCESS_SECRET,
-    });
-    const me = await client.v2.me();
-    return { name: "Twitter/X API", ok: true, message: `OK (@${me.data.username})` };
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return { name: "Twitter/X API", ok: false, message: msg };
-  }
-}
-
 async function checkQiita(): Promise<CheckResult> {
   const token = process.env.QIITA_API_TOKEN;
   if (!token) return { name: "Qiita API", ok: false, message: "QIITA_API_TOKEN が未設定" };
@@ -62,6 +41,67 @@ async function checkQiita(): Promise<CheckResult> {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     return { name: "Qiita API", ok: false, message: msg };
+  }
+}
+
+async function checkBluesky(): Promise<CheckResult> {
+  const handle = process.env.BLUESKY_HANDLE;
+  const appPassword = process.env.BLUESKY_APP_PASSWORD;
+  if (!handle || !appPassword) return { name: "Bluesky", ok: false, message: "BLUESKY_HANDLE / BLUESKY_APP_PASSWORD が未設定" };
+  try {
+    const res = await fetch("https://bsky.social/xrpc/com.atproto.server.createSession", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier: handle, password: appPassword }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const session = await res.json();
+    return { name: "Bluesky", ok: true, message: `OK (${session.handle})` };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { name: "Bluesky", ok: false, message: msg };
+  }
+}
+
+async function checkMastodon(): Promise<CheckResult> {
+  const instance = process.env.MASTODON_INSTANCE;
+  const token = process.env.MASTODON_ACCESS_TOKEN;
+  if (!instance || !token) return { name: "Mastodon", ok: false, message: "MASTODON_INSTANCE / MASTODON_ACCESS_TOKEN が未設定" };
+  try {
+    const host = instance.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    const res = await fetch(`https://${host}/api/v1/accounts/verify_credentials`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const me = await res.json();
+    return { name: "Mastodon", ok: true, message: `OK (@${me.username}@${host})` };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { name: "Mastodon", ok: false, message: msg };
+  }
+}
+
+async function checkHashnode(): Promise<CheckResult> {
+  const pat = process.env.HASHNODE_PAT;
+  if (!pat) return { name: "Hashnode", ok: false, message: "HASHNODE_PAT が未設定" };
+  try {
+    const res = await fetch("https://gql.hashnode.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: pat,
+      },
+      body: JSON.stringify({
+        query: `query { me { username } }`,
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const username = data?.data?.me?.username || "unknown";
+    return { name: "Hashnode", ok: true, message: `OK (@${username})` };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { name: "Hashnode", ok: false, message: msg };
   }
 }
 
@@ -89,8 +129,10 @@ async function main() {
 
   const results = await Promise.all([
     checkClaude(),
-    checkTwitter(),
     checkQiita(),
+    checkBluesky(),
+    checkMastodon(),
+    checkHashnode(),
     checkGitHub(),
   ]);
 

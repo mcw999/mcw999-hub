@@ -7,8 +7,9 @@
  * - 各プラットフォームのユーザーに価値を提供し、結果としてアプリの認知につなげる
  *
  * 各プラットフォームの役割:
- * - Twitter/X: ターゲットと同じ立場からの共感投稿（プロフィール経由でアプリ認知）
+ * - Bluesky/Mastodon: ターゲットと同じ立場からの共感投稿（プロフィール経由でアプリ認知）
  * - Zenn/Qiita: ターゲットが検索する課題の解決記事（記事内でツールに一言触れる程度）
+ * - Hashnode: 英語技術記事で海外開発者にリーチ
  * - ブログ: ターゲットの悩みを解決するガイド（自社サイトなのでアプリ紹介あり）
  */
 import Anthropic from "@anthropic-ai/sdk";
@@ -21,7 +22,7 @@ import {
   readProjectFiles,
   getPublishedLog,
   savePublishedLog,
-  projectContextForTwitter,
+  projectContextForSNS,
   projectContextFull,
   blogArticleUrl,
 } from "./lib/config";
@@ -92,9 +93,9 @@ const QIITA_ANGLES = [
   },
 ];
 
-// --- Twitter 5パターン定義 ---
+// --- Bluesky/Mastodon SNS投稿パターン定義 ---
 // 注: 煽り・上から目線パターンは排除。同じ立場のユーザーとしての自然な投稿のみ。
-const TWEET_PATTERNS = [
+const SNS_POST_PATTERNS = [
   {
     id: "empathy",
     label: "共感型",
@@ -246,12 +247,13 @@ function selectAngle<T extends { id: string }>(
   return angles[publishCount % angles.length];
 }
 
-// --- Twitter: 独立ツイート2本 + スレッド1本（3ツイート）---
-async function generateTweets(
+// --- Bluesky: 短文投稿2本（300 grapheme以内）---
+async function generateBlueskyPosts(
   client: Anthropic,
   project: ProjectDefinition
-): Promise<{ standalone: string[]; thread: string[] }> {
-  const context = projectContextForTwitter(project);
+): Promise<string[]> {
+  const context = projectContextForSNS(project);
+  const blogUrl = blogArticleUrl(project.slug);
 
   const system = `あなたはターゲットユーザーの1人です。同じ悩みや関心を持つ人間として、日常の体験や気づきを投稿します。
 
@@ -260,73 +262,185 @@ async function generateTweets(
 - 技術スタックには一切触れない（React、TypeScript、Rust、Next.js等は禁止）
 - 技術的な用語（API、アルゴリズム、データベース等）も禁止
 - 同じ悩みを持つ人が「わかる！」と共感する内容にする
-- アプリ名やURLを入れなくてよい（プロフィールで知ってもらう導線）
-- 各ツイートは280文字以内（厳守）
+- 各投稿は300文字以内（厳守）
 - ハッシュタグはターゲットユーザーが検索するワードを使う（毎回異なるもの）
 - 改行を活用して読みやすくする
-- ツイート本文のみを出力（説明不要）
+- 投稿本文のみを出力（説明不要）
 
-絶対禁止（これらは即スルーされる）:
+絶対禁止:
 - 「まだ○○してるの？」「○○って知ってた？」等の上から目線・煽り表現
 - 「今すぐ」「必見」「驚きの」「革命的」等の広告ワード
 - 「○○%の人が○○」等の出典不明な統計
 - アプリの直接的な売り込み・勧誘
 
-一次素材（体験ログ、実測データ等）が提供されている場合は、それを核にして具体的なツイートにする。
+一次素材（体験ログ、実測データ等）が提供されている場合は、それを核にして具体的な投稿にする。
 一次素材がない場合は、ターゲットユーザーの日常あるあるや共感ネタに徹する。
 
 以下の形式で出力してください:
 
-STANDALONE-1:
+POST-1:
 [共感型: ターゲットが「あるある！」と感じる日常の悩みや体験]
 ===
-STANDALONE-2:
-[気づき型: ターゲットの関心領域に関する有益な情報や発見]
-===
-THREAD-1:
-[フック: ターゲットが思わず読みたくなる体験の導入。煽りではなく正直な語り出し]
-THREAD-2:
-[展開: 自分の体験を具体的に共有。一次素材があればそれを使う]
-THREAD-3:
-[まとめ: 学びや気づきを共有し、最後に「詳しくはブログに書いた」としてブログURLを1つ載せる]`;
+POST-2:
+[気づき型: ターゲットの関心領域に関する有益な情報や発見。「ブログに書いた」として以下のURLを自然に含める: ${blogUrl}]`;
 
-  const blogUrl = blogArticleUrl(project.slug);
-
-  const prompt = `以下のターゲットユーザーになりきって、同じ立場の人間が日常で投稿しそうなツイートを書いてください。
+  const prompt = `以下のターゲットユーザーになりきって、同じ立場の人間が日常で投稿しそうなBluesky投稿を2本書いてください。
 これは宣伝ではありません。同じ関心を持つ人同士の自然な会話です。
-独立ツイートにはURLは不要です。スレッドの最後（THREAD-3）にだけ、「ブログに詳しく書いた」として以下のURLを自然に含めてください。
+1本目にはURLは不要です。2本目にだけ「ブログに詳しく書いた」として以下のURLを自然に含めてください。
 
 ブログURL: ${blogUrl}
 
 ${context}
 
-上記の形式（STANDALONE-1, STANDALONE-2, THREAD-1/2/3）で出力してください。`;
+上記の形式（POST-1, POST-2）で出力してください。`;
 
   const result = await generateWithClaude(client, system, prompt);
-  await logUsage("twitter", "ツイート+スレッド生成", MODEL, result.usage);
+  await logUsage("bluesky", "Bluesky投稿生成", MODEL, result.usage);
 
-  const standalone: string[] = [];
-  const thread: string[] = [];
-
+  const posts: string[] = [];
   const parts = result.text.split("===").map(p => p.trim()).filter(Boolean);
   for (const part of parts) {
-    const cleaned = part.replace(/^STANDALONE-\d+:\s*/i, "").replace(/^THREAD-\d+:\s*/i, "").trim();
-    if (part.startsWith("STANDALONE")) {
-      standalone.push(cleaned);
-    } else if (part.startsWith("THREAD")) {
-      // THREADパートは1つの===区切りに3つのTHREAD-N:が入っている場合
-      const threadParts = part.split(/THREAD-\d+:\s*/i).filter(Boolean);
-      thread.push(...threadParts.map(t => t.trim()));
+    const cleaned = part.replace(/^POST-\d+:\s*/i, "").trim();
+    posts.push(cleaned);
+  }
+
+  // フォールバック
+  if (posts.length === 0) {
+    const fallback = result.text.split("---").map(t => t.trim()).filter(Boolean);
+    return fallback;
+  }
+
+  return posts;
+}
+
+// --- Mastodon: 短文投稿2本（500文字以内）---
+async function generateMastodonPosts(
+  client: Anthropic,
+  project: ProjectDefinition
+): Promise<string[]> {
+  const context = projectContextForSNS(project);
+  const blogUrl = blogArticleUrl(project.slug);
+
+  const system = `あなたはターゲットユーザーの1人です。同じ悩みや関心を持つ人間として、日常の体験や気づきをMastodonに投稿します。
+
+絶対ルール:
+- あなたは「ユーザー」であり「宣伝者」ではない
+- 技術スタックには一切触れない（React、TypeScript、Rust、Next.js等は禁止）
+- 技術的な用語（API、アルゴリズム、データベース等）も禁止
+- 同じ悩みを持つ人が「わかる！」と共感する内容にする
+- 各投稿は500文字以内（厳守）
+- ハッシュタグはターゲットユーザーが検索するワードを使う（毎回異なるもの）
+- 改行を活用して読みやすくする
+- 投稿本文のみを出力（説明不要）
+- Blueskyより長く書けるので、少し詳しく体験や気づきを共有する
+
+絶対禁止:
+- 「まだ○○してるの？」「○○って知ってた？」等の上から目線・煽り表現
+- 「今すぐ」「必見」「驚きの」「革命的」等の広告ワード
+- 「○○%の人が○○」等の出典不明な統計
+- アプリの直接的な売り込み・勧誘
+
+一次素材（体験ログ、実測データ等）が提供されている場合は、それを核にして具体的な投稿にする。
+一次素材がない場合は、ターゲットユーザーの日常あるあるや共感ネタに徹する。
+
+以下の形式で出力してください:
+
+POST-1:
+[共感型: ターゲットが「あるある！」と感じる日常の悩みや体験]
+===
+POST-2:
+[体験共有型: 自分の体験を少し詳しく共有。「ブログに書いた」として以下のURLを自然に含める: ${blogUrl}]`;
+
+  const prompt = `以下のターゲットユーザーになりきって、同じ立場の人間が日常で投稿しそうなMastodon投稿を2本書いてください。
+これは宣伝ではありません。同じ関心を持つ人同士の自然な会話です。
+1本目にはURLは不要です。2本目にだけ「ブログに詳しく書いた」として以下のURLを自然に含めてください。
+
+ブログURL: ${blogUrl}
+
+${context}
+
+上記の形式（POST-1, POST-2）で出力してください。`;
+
+  const result = await generateWithClaude(client, system, prompt);
+  await logUsage("mastodon", "Mastodon投稿生成", MODEL, result.usage);
+
+  const posts: string[] = [];
+  const parts = result.text.split("===").map(p => p.trim()).filter(Boolean);
+  for (const part of parts) {
+    const cleaned = part.replace(/^POST-\d+:\s*/i, "").trim();
+    posts.push(cleaned);
+  }
+
+  if (posts.length === 0) {
+    const fallback = result.text.split("---").map(t => t.trim()).filter(Boolean);
+    return fallback;
+  }
+
+  return posts;
+}
+
+// --- Hashnode: 英語技術記事 ---
+async function generateHashnodeArticle(
+  client: Anthropic,
+  project: ProjectDefinition,
+  retryFeedback?: string
+): Promise<{ title: string; body: string; tags: string[] }> {
+  const context = projectContextFull(project);
+  const techContext = projectContextForTech(project);
+  const blogUrl = blogArticleUrl(project.slug);
+
+  const system = `You are a software engineer writing a technical blog post for Hashnode. Write in English.
+
+Quality standards:
+- Include at least 2 code examples
+- Explain the "why" behind decisions, not just the "what"
+- 1500-3000 words
+- The article should be valuable standalone
+
+Absolute rules:
+- No ranking formats ("TOP 7", "N best", etc.)
+- No clickbait titles
+- No promotional language
+- No templates or placeholders
+- Write the complete article
+- Your tool/project may appear naturally, but it's NOT the focus
+
+Output format:
+- First line: "TITLE: article title"
+- Second line: empty
+- Third line onward: article body (Markdown)
+- After the body, add a line "TAGS: tag1, tag2, tag3" (3-5 tags)`;
+
+  const prompt = `Write a technical article based on the project described below. Focus on a technical challenge, architecture decision, or implementation insight that would be valuable to other developers.
+
+At the end, naturally mention your blog for more details: ${blogUrl}
+
+${context}
+${techContext}
+
+First line must be "TITLE: article title".
+Last line must be "TAGS: tag1, tag2, tag3".`;
+
+  const result = await generateWithClaude(client, system, prompt, retryFeedback);
+  await logUsage("hashnode", retryFeedback ? "Hashnode記事再生成" : "Hashnode記事生成", MODEL, result.usage);
+
+  const lines = result.text.split("\n");
+  const title = lines[0].replace(/^TITLE:\s*/, "").trim();
+
+  // TAGS行を探す
+  let tags: string[] = [];
+  let bodyEndIndex = lines.length;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (lines[i].startsWith("TAGS:")) {
+      tags = lines[i].replace(/^TAGS:\s*/, "").split(",").map(t => t.trim()).filter(Boolean);
+      bodyEndIndex = i;
+      break;
     }
   }
 
-  // フォールバック: パースに失敗した場合は全てをstandaloneとして扱う
-  if (standalone.length === 0 && thread.length === 0) {
-    const fallback = result.text.split("---").map(t => t.trim()).filter(Boolean);
-    return { standalone: fallback, thread: [] };
-  }
+  const body = lines.slice(2, bodyEndIndex).join("\n").trim();
 
-  return { standalone, thread };
+  return { title, body, tags };
 }
 
 // --- Zenn: 開発者向け技術記事 ---
@@ -479,7 +593,7 @@ async function generateBlogPost(
   const context = projectContextFull(project);
 
   const system = `あなたはターゲットユーザーの悩みを理解し、それを解決する方法を紹介するブログライターです。
-この記事は各SNS（Twitter、Qiita、Zenn、Dev.to、Reddit）から誘導される「詳細記事」です。
+この記事は各SNS（Bluesky、Mastodon、Qiita、Zenn、Dev.to、Hashnode）から誘導される「詳細記事」です。
 SNSでは短い概要や体験を共有し、「詳しくはブログで」とリンクされる受け皿になります。
 
 絶対ルール:
@@ -580,12 +694,12 @@ function validateArticleBody(body: string, errors: string[], warnings: string[])
   }
 }
 
-function validateTweet(tweet: string): ValidationResult {
+function validateSNSPost(post: string, maxLength: number, platform: string): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  if (tweet.length > 280) {
-    errors.push(`文字数超過: ${tweet.length}文字 (上限280)`);
+  if (post.length > maxLength) {
+    errors.push(`文字数超過: ${post.length}文字 (上限${maxLength})`);
   }
 
   // 技術スタック用語チェック
@@ -595,7 +709,7 @@ function validateTweet(tweet: string): ValidationResult {
     "Express", "API", "SDK", "npm", "GitHub", "git",
   ];
   for (const term of techTerms) {
-    if (tweet.toLowerCase().includes(term.toLowerCase())) {
+    if (post.toLowerCase().includes(term.toLowerCase())) {
       errors.push(`技術用語「${term}」が含まれています`);
     }
   }
@@ -614,12 +728,12 @@ function validateTweet(tweet: string): ValidationResult {
     { pattern: /チェック[!！]/, label: "広告ワード「チェック！」" },
   ];
   for (const { pattern, label } of adPatterns) {
-    if (pattern.test(tweet)) {
+    if (pattern.test(post)) {
       errors.push(`禁止表現: ${label}`);
     }
   }
 
-  if (tweet.length < 50) {
+  if (post.length < 50) {
     warnings.push("短すぎる可能性があります");
   }
 
@@ -845,66 +959,95 @@ async function main() {
   const schedulePlatforms = envPlatforms
     ? envPlatforms.split(",").map((s) => s.trim()).filter(Boolean)
     : targetProject.schedule?.platforms || [
-        "twitter", "zenn", "qiita", "blog", "devto", "reddit",
+        "qiita", "zenn", "devto", "hashnode", "bluesky", "mastodon", "github_releases", "blog",
       ];
   console.log(`配信先: ${schedulePlatforms.join(", ")}${envPlatforms ? " [手動指定]" : ""}\n`);
 
   let hasErrors = false;
 
-  // 1. Twitter投稿生成（独立2本 + スレッド1本）
-  if (!schedulePlatforms.includes("twitter")) {
-    console.log("Twitter: スケジュール対象外のためスキップ\n");
+  // 1. Bluesky投稿生成（2本）
+  if (!schedulePlatforms.includes("bluesky")) {
+    console.log("Bluesky: スケジュール対象外のためスキップ\n");
   } else {
-  console.log("ツイート生成中...");
-  const { standalone, thread } = await generateTweets(client, targetProject);
-  const twitterDir = path.join(CONTENT_DIR, "sns", "twitter");
-  await fs.mkdir(twitterDir, { recursive: true });
+    console.log("Bluesky投稿生成中...");
+    const blueskyPosts = await generateBlueskyPosts(client, targetProject);
+    const blueskyDir = path.join(CONTENT_DIR, "sns", "bluesky");
+    await fs.mkdir(blueskyDir, { recursive: true });
 
-  // 独立ツイートのバリデーションと保存
-  const validStandalone: string[] = [];
-  for (let i = 0; i < standalone.length; i++) {
-    const result = validateTweet(standalone[i]);
-    logValidation(`独立ツイート${i + 1}`, result);
-    if (result.valid) {
-      validStandalone.push(standalone[i]);
-    } else {
-      hasErrors = true;
-    }
-  }
-  for (let i = 0; i < validStandalone.length; i++) {
-    const suffix = i === 0 ? "" : `-v${i + 1}`;
-    await fs.writeFile(
-      path.join(twitterDir, `${TODAY}-${targetProject.slug}${suffix}.txt`),
-      validStandalone[i],
-      "utf-8"
-    );
-  }
-
-  // スレッドのバリデーションと保存
-  if (thread.length > 0) {
-    let threadValid = true;
-    for (let i = 0; i < thread.length; i++) {
-      const result = validateTweet(thread[i]);
-      logValidation(`スレッド${i + 1}`, result);
-      if (!result.valid) {
-        threadValid = false;
+    const validPosts: string[] = [];
+    for (let i = 0; i < blueskyPosts.length; i++) {
+      const result = validateSNSPost(blueskyPosts[i], 300, "bluesky");
+      logValidation(`Bluesky投稿${i + 1}`, result);
+      if (result.valid) {
+        validPosts.push(blueskyPosts[i]);
+      } else {
         hasErrors = true;
       }
     }
-    if (threadValid) {
+    for (let i = 0; i < validPosts.length; i++) {
+      const suffix = i === 0 ? "" : `-v${i + 1}`;
       await fs.writeFile(
-        path.join(twitterDir, `${TODAY}-${targetProject.slug}.thread.json`),
-        JSON.stringify(thread, null, 2),
+        path.join(blueskyDir, `${TODAY}-${targetProject.slug}${suffix}.txt`),
+        validPosts[i],
         "utf-8"
       );
-      console.log(`  保存: スレッド(${thread.length}ツイート)\n`);
+    }
+    console.log(`  保存: ${validPosts.length}件のBluesky投稿\n`);
+  }
+
+  // 2. Mastodon投稿生成（2本）
+  if (!schedulePlatforms.includes("mastodon")) {
+    console.log("Mastodon: スケジュール対象外のためスキップ\n");
+  } else {
+    console.log("Mastodon投稿生成中...");
+    const mastodonPosts = await generateMastodonPosts(client, targetProject);
+    const mastodonDir = path.join(CONTENT_DIR, "sns", "mastodon");
+    await fs.mkdir(mastodonDir, { recursive: true });
+
+    const validPosts: string[] = [];
+    for (let i = 0; i < mastodonPosts.length; i++) {
+      const result = validateSNSPost(mastodonPosts[i], 500, "mastodon");
+      logValidation(`Mastodon投稿${i + 1}`, result);
+      if (result.valid) {
+        validPosts.push(mastodonPosts[i]);
+      } else {
+        hasErrors = true;
+      }
+    }
+    for (let i = 0; i < validPosts.length; i++) {
+      const suffix = i === 0 ? "" : `-v${i + 1}`;
+      await fs.writeFile(
+        path.join(mastodonDir, `${TODAY}-${targetProject.slug}${suffix}.txt`),
+        validPosts[i],
+        "utf-8"
+      );
+    }
+    console.log(`  保存: ${validPosts.length}件のMastodon投稿\n`);
+  }
+
+  // 3. Hashnode記事生成
+  if (!schedulePlatforms.includes("hashnode")) {
+    console.log("Hashnode: スケジュール対象外のためスキップ\n");
+  } else {
+    console.log("Hashnode記事生成中...");
+    const hashnodeArticle = await generateHashnodeArticle(client, targetProject);
+
+    if (hashnodeArticle.title && hashnodeArticle.body) {
+      const hashnodeDir = path.join(CONTENT_DIR, "sns", "hashnode");
+      await fs.mkdir(hashnodeDir, { recursive: true });
+      await fs.writeFile(
+        path.join(hashnodeDir, `${TODAY}-${targetProject.slug}.json`),
+        JSON.stringify(hashnodeArticle, null, 2),
+        "utf-8"
+      );
+      console.log(`  保存: content/sns/hashnode/${TODAY}-${targetProject.slug}.json\n`);
+    } else {
+      hasErrors = true;
+      console.error("  Hashnode記事の生成に失敗しました\n");
     }
   }
 
-  console.log(`  保存: ${validStandalone.length}件の独立ツイート\n`);
-  }
-
-  // 2. Zenn記事生成（バリデーション失敗時は1回リトライ）
+  // 4. Zenn記事生成（バリデーション失敗時は1回リトライ）
   if (!schedulePlatforms.includes("zenn")) {
     console.log("Zenn: スケジュール対象外のためスキップ\n");
   } else {
@@ -945,7 +1088,7 @@ async function main() {
   }
   }
 
-  // 3. Qiita記事生成（バリデーション失敗時は1回リトライ）
+  // 5. Qiita記事生成（バリデーション失敗時は1回リトライ）
   if (!schedulePlatforms.includes("qiita")) {
     console.log("Qiita: スケジュール対象外のためスキップ\n");
   } else {
@@ -991,7 +1134,7 @@ async function main() {
   }
   }
 
-  // 4. ブログ記事生成（バリデーション失敗時は1回リトライ）
+  // 6. ブログ記事生成（バリデーション失敗時は1回リトライ）
   if (!schedulePlatforms.includes("blog")) {
     console.log("Blog: スケジュール対象外のためスキップ\n");
   } else {
@@ -1025,7 +1168,7 @@ async function main() {
   }
   }
 
-  // 5. 公開ログ更新
+  // 7. 公開ログ更新
   if (!publishedLog[targetProject.slug]) {
     publishedLog[targetProject.slug] = [];
   }

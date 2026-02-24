@@ -26,7 +26,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Step 1: Claude APIでコンテンツ自動生成（Twitter5本 + Zenn + Qiita + Blog）
+      # Step 1: Claude APIでコンテンツ自動生成（Bluesky + Mastodon + Hashnode + Zenn + Qiita + Blog）
       - name: Generate content with Claude API
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -48,30 +48,44 @@ jobs:
         run: npx tsx scripts/post-devto.ts
         continue-on-error: true
 
-      # Step 4: Redditに投稿（月1回・開発ログ形式）
-      - name: Post to Reddit
+      # Step 4: Hashnodeに投稿
+      - name: Post to Hashnode
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
-          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
-        run: npx tsx scripts/post-reddit.ts
+          HASHNODE_PAT: ${{ secrets.HASHNODE_PAT }}
+        run: npx tsx scripts/post-hashnode.ts
         continue-on-error: true
 
-      # Step 5: アナリティクス取得
+      # Step 5: Blueskyに投稿
+      - name: Post to Bluesky
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+        run: npx tsx scripts/post-bluesky.ts
+        continue-on-error: true
+
+      # Step 6: Mastodonに投稿
+      - name: Post to Mastodon
+        env:
+          MASTODON_INSTANCE: ${{ secrets.MASTODON_INSTANCE }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+        run: npx tsx scripts/post-mastodon.ts
+        continue-on-error: true
+
+      # Step 7: アナリティクス取得
       - name: Fetch analytics
         env:
           QIITA_API_TOKEN: ${{ secrets.QIITA_API_TOKEN }}
           DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
-          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
-          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+          HASHNODE_PAT: ${{ secrets.HASHNODE_PAT }}
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          MASTODON_INSTANCE: ${{ secrets.MASTODON_INSTANCE }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
         run: npx tsx scripts/fetch-analytics.ts
         continue-on-error: true
 
-      # Step 6: コミット＆プッシュ
+      # Step 8: コミット＆プッシュ
       - name: Commit and push generated content
         run: |
           git config user.name "github-actions[bot]"

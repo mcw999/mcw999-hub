@@ -3,32 +3,26 @@ import path from "path";
 
 export interface Config {
   anthropicApiKey: string;
-  twitterApiKey: string;
-  twitterApiSecret: string;
-  twitterAccessToken: string;
-  twitterAccessSecret: string;
   qiitaApiToken: string;
   devtoApiKey: string;
-  redditClientId: string;
-  redditClientSecret: string;
-  redditUsername: string;
-  redditPassword: string;
+  hashnodePat: string;
+  blueskyHandle: string;
+  blueskyAppPassword: string;
+  mastodonInstance: string;
+  mastodonAccessToken: string;
   siteUrl: string;
 }
 
 export function loadConfig(): Config {
   return {
     anthropicApiKey: optEnv("ANTHROPIC_API_KEY"),
-    twitterApiKey: optEnv("TWITTER_API_KEY"),
-    twitterApiSecret: optEnv("TWITTER_API_SECRET"),
-    twitterAccessToken: optEnv("TWITTER_ACCESS_TOKEN"),
-    twitterAccessSecret: optEnv("TWITTER_ACCESS_SECRET"),
     qiitaApiToken: optEnv("QIITA_API_TOKEN"),
     devtoApiKey: optEnv("DEVTO_API_KEY"),
-    redditClientId: optEnv("REDDIT_CLIENT_ID"),
-    redditClientSecret: optEnv("REDDIT_CLIENT_SECRET"),
-    redditUsername: optEnv("REDDIT_USERNAME"),
-    redditPassword: optEnv("REDDIT_PASSWORD"),
+    hashnodePat: optEnv("HASHNODE_PAT"),
+    blueskyHandle: optEnv("BLUESKY_HANDLE"),
+    blueskyAppPassword: optEnv("BLUESKY_APP_PASSWORD"),
+    mastodonInstance: optEnv("MASTODON_INSTANCE"),
+    mastodonAccessToken: optEnv("MASTODON_ACCESS_TOKEN"),
     siteUrl: process.env.SITE_URL || "https://mcw999.github.io",
   };
 }
@@ -113,10 +107,10 @@ function formatSourceNotes(project: any): string {
 }
 
 /**
- * Twitter投稿用のプロジェクトコンテキスト
+ * SNS投稿用のプロジェクトコンテキスト
  * techStackを除外し、ユーザー視点の情報のみ提供
  */
-export function projectContextForTwitter(project: any): string {
+export function projectContextForSNS(project: any): string {
   return `
 アプリ名: ${project.nameJa || project.name}
 一言説明: ${project.taglineJa || project.tagline}

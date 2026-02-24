@@ -95,101 +95,244 @@ async function fetchDevtoMetrics(apiKey: string): Promise<PostMetrics[]> {
   }));
 }
 
-// --- Reddit ---
-async function fetchRedditMetrics(
-  config: ReturnType<typeof loadConfig>
-): Promise<PostMetrics[]> {
-  if (!config.redditClientId || !config.redditUsername) return [];
+// --- Hashnode ---
+async function fetchHashnodeMetrics(pat: string): Promise<PostMetrics[]> {
+  if (!pat) return [];
 
-  const auth = Buffer.from(
-    `${config.redditClientId}:${config.redditClientSecret}`
-  ).toString("base64");
-
-  const tokenResponse = await fetch(
-    "https://www.reddit.com/api/v1/access_token",
-    {
+  try {
+    const meRes = await fetch("https://gql.hashnode.com", {
       method: "POST",
       headers: {
-        Authorization: `Basic ${auth}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "mcw999-hub/1.0",
+        "Content-Type": "application/json",
+        Authorization: pat,
       },
-      body: new URLSearchParams({
-        grant_type: "password",
-        username: config.redditUsername,
-        password: config.redditPassword,
+      body: JSON.stringify({
+        query: `query {
+          me {
+            publications(first: 1) {
+              edges {
+                node {
+                  id
+                  posts(first: 50) {
+                    edges {
+                      node {
+                        id
+                        title
+                        url
+                        slug
+                        publishedAt
+                        views
+                        reactionCount
+                        responseCount
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }`,
       }),
-    }
-  );
+    });
 
-  if (!tokenResponse.ok) {
-    console.error(`Reddit auth error: ${tokenResponse.status}`);
+    if (!meRes.ok) {
+      console.error(`Hashnode API error: ${meRes.status}`);
+      return [];
+    }
+
+    const data = await meRes.json();
+    const posts = data?.data?.me?.publications?.edges?.[0]?.node?.posts?.edges || [];
+
+    return posts.map((edge: any) => {
+      const p = edge.node;
+      return {
+        platform: "hashnode",
+        title: p.title,
+        url: p.url,
+        postId: p.id,
+        slug: p.slug || "",
+        postedAt: p.publishedAt?.split("T")[0] || "",
+        views: p.views ?? null,
+        likes: p.reactionCount || 0,
+        comments: p.responseCount || 0,
+        stocks: null,
+        upvoteRatio: null,
+      };
+    });
+  } catch (err: any) {
+    console.error(`Hashnode fetch error: ${err.message}`);
     return [];
   }
-
-  const tokenData = await tokenResponse.json();
-  const accessToken = tokenData.access_token;
-
-  const postsResponse = await fetch(
-    `https://oauth.reddit.com/user/${config.redditUsername}/submitted?limit=100&sort=new`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "User-Agent": "mcw999-hub/1.0",
-      },
-    }
-  );
-
-  if (!postsResponse.ok) {
-    console.error(`Reddit posts error: ${postsResponse.status}`);
-    return [];
-  }
-
-  const postsData = await postsResponse.json();
-  const posts = postsData?.data?.children || [];
-
-  return posts.map((child: any) => {
-    const p = child.data;
-    return {
-      platform: "reddit",
-      title: p.title,
-      url: `https://www.reddit.com${p.permalink}`,
-      postId: p.name,
-      slug: "",
-      postedAt: new Date(p.created_utc * 1000).toISOString().split("T")[0],
-      views: null,
-      likes: p.ups || 0,
-      comments: p.num_comments || 0,
-      stocks: null,
-      upvoteRatio: p.upvote_ratio ?? null,
-    };
-  });
 }
 
-// --- Twitter (ログベース。API読み取りは有料のためスキップ) ---
-async function fetchTwitterMetrics(): Promise<PostMetrics[]> {
-  const postedLogPath = path.join(
-    CONTENT_DIR,
-    "sns",
-    "twitter",
-    ".posted.json"
-  );
+// --- Bluesky ---
+async function fetchBlueskyMetrics(
+  handle: string,
+  appPassword: string
+): Promise<PostMetrics[]> {
+  if (!handle || !appPassword) return [];
+
   try {
-    const raw = await fs.readFile(postedLogPath, "utf-8");
-    const posted = JSON.parse(raw);
-    return posted.map((entry: any) => ({
-      platform: "twitter",
-      title: entry.filename,
-      url: `https://x.com/i/status/${entry.tweetId}`,
-      postId: entry.tweetId || "",
-      slug: entry.slug || "",
-      postedAt: entry.postedAt || "",
-      views: null,
-      likes: 0,
-      comments: 0,
-      stocks: null,
-      upvoteRatio: null,
-    }));
+    // セッション作成
+    const sessionRes = await fetch(
+      "https://bsky.social/xrpc/com.atproto.server.createSession",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          identifier: handle,
+          password: appPassword,
+        }),
+      }
+    );
+
+    if (!sessionRes.ok) {
+      console.error(`Bluesky session error: ${sessionRes.status}`);
+      return [];
+    }
+
+    const session = await sessionRes.json();
+
+    // 自分のフィードを取得
+    const feedRes = await fetch(
+      `https://bsky.social/xrpc/app.bsky.feed.getAuthorFeed?actor=${session.did}&limit=50`,
+      {
+        headers: { Authorization: `Bearer ${session.accessJwt}` },
+      }
+    );
+
+    if (!feedRes.ok) {
+      console.error(`Bluesky feed error: ${feedRes.status}`);
+      return [];
+    }
+
+    const feedData = await feedRes.json();
+    const feed = feedData?.feed || [];
+
+    return feed.map((item: any) => {
+      const post = item.post;
+      const text = post.record?.text || "";
+      return {
+        platform: "bluesky",
+        title: text.substring(0, 80) + (text.length > 80 ? "..." : ""),
+        url: `https://bsky.app/profile/${handle}/post/${post.uri.split("/").pop()}`,
+        postId: post.uri,
+        slug: "",
+        postedAt: post.record?.createdAt?.split("T")[0] || "",
+        views: null,
+        likes: post.likeCount || 0,
+        comments: post.replyCount || 0,
+        stocks: null,
+        upvoteRatio: null,
+      };
+    });
+  } catch (err: any) {
+    console.error(`Bluesky fetch error: ${err.message}`);
+    return [];
+  }
+}
+
+// --- Mastodon ---
+async function fetchMastodonMetrics(
+  instance: string,
+  token: string
+): Promise<PostMetrics[]> {
+  if (!instance || !token) return [];
+
+  const host = instance.replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+  try {
+    // 自分のアカウント情報を取得
+    const meRes = await fetch(`https://${host}/api/v1/accounts/verify_credentials`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!meRes.ok) {
+      console.error(`Mastodon verify error: ${meRes.status}`);
+      return [];
+    }
+
+    const me = await meRes.json();
+
+    // 自分のステータスを取得
+    const statusesRes = await fetch(
+      `https://${host}/api/v1/accounts/${me.id}/statuses?limit=40&exclude_replies=true&exclude_reblogs=true`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (!statusesRes.ok) {
+      console.error(`Mastodon statuses error: ${statusesRes.status}`);
+      return [];
+    }
+
+    const statuses = await statusesRes.json();
+
+    return statuses.map((s: any) => {
+      const text = s.content?.replace(/<[^>]*>/g, "") || "";
+      return {
+        platform: "mastodon",
+        title: text.substring(0, 80) + (text.length > 80 ? "..." : ""),
+        url: s.url,
+        postId: s.id,
+        slug: "",
+        postedAt: s.created_at?.split("T")[0] || "",
+        views: null,
+        likes: s.favourites_count || 0,
+        comments: s.replies_count || 0,
+        stocks: null,
+        upvoteRatio: null,
+      };
+    });
+  } catch (err: any) {
+    console.error(`Mastodon fetch error: ${err.message}`);
+    return [];
+  }
+}
+
+// --- Blog (PVログベース) ---
+async function fetchBlogMetrics(): Promise<PostMetrics[]> {
+  const trafficPath = path.join(CONTENT_DIR, "meta", "traffic-history.json");
+  try {
+    const raw = await fs.readFile(trafficPath, "utf-8");
+    const traffic = JSON.parse(raw);
+
+    // traffic-history.json の形式に合わせてサマリーを生成
+    if (Array.isArray(traffic)) {
+      return traffic.map((entry: any) => ({
+        platform: "blog",
+        title: entry.path || entry.title || "Blog Page",
+        url: entry.url || "",
+        postId: entry.path || "",
+        slug: "",
+        postedAt: entry.date || "",
+        views: entry.views ?? entry.pv ?? null,
+        likes: 0,
+        comments: 0,
+        stocks: null,
+        upvoteRatio: null,
+      }));
+    }
+
+    // オブジェクト形式の場合
+    const entries: PostMetrics[] = [];
+    for (const [pagePath, data] of Object.entries(traffic as Record<string, any>)) {
+      entries.push({
+        platform: "blog",
+        title: pagePath,
+        url: "",
+        postId: pagePath,
+        slug: "",
+        postedAt: "",
+        views: typeof data === "number" ? data : (data?.views ?? data?.pv ?? null),
+        likes: 0,
+        comments: 0,
+        stocks: null,
+        upvoteRatio: null,
+      });
+    }
+    return entries;
   } catch {
     return [];
   }
@@ -224,7 +367,7 @@ async function main() {
 
   console.log("Fetching analytics from all platforms...\n");
 
-  const [qiita, devto, reddit, twitter] = await Promise.all([
+  const [qiita, devto, hashnode, bluesky, mastodon, blog] = await Promise.all([
     fetchQiitaMetrics(config.qiitaApiToken).then((r) => {
       console.log(`Qiita: ${r.length} articles`);
       return r;
@@ -233,17 +376,25 @@ async function main() {
       console.log(`Dev.to: ${r.length} articles`);
       return r;
     }),
-    fetchRedditMetrics(config).then((r) => {
-      console.log(`Reddit: ${r.length} posts`);
+    fetchHashnodeMetrics(config.hashnodePat).then((r) => {
+      console.log(`Hashnode: ${r.length} articles`);
       return r;
     }),
-    fetchTwitterMetrics().then((r) => {
-      console.log(`Twitter: ${r.length} tweets (from log)`);
+    fetchBlueskyMetrics(config.blueskyHandle, config.blueskyAppPassword).then((r) => {
+      console.log(`Bluesky: ${r.length} posts`);
+      return r;
+    }),
+    fetchMastodonMetrics(config.mastodonInstance, config.mastodonAccessToken).then((r) => {
+      console.log(`Mastodon: ${r.length} posts`);
+      return r;
+    }),
+    fetchBlogMetrics().then((r) => {
+      console.log(`Blog: ${r.length} pages`);
       return r;
     }),
   ]);
 
-  const allPosts = [...qiita, ...devto, ...reddit, ...twitter];
+  const allPosts = [...qiita, ...devto, ...hashnode, ...bluesky, ...mastodon, ...blog];
   const summaries = buildSummaries(allPosts);
 
   const data: AnalyticsData = {
