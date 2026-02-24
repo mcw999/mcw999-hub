@@ -1,0 +1,50 @@
+{
+  "slug": "city-canvas",
+  "name": "CityCanvas（シティキャンバス）",
+  "tagline": "街全体をキャンバスに変える、ソーシャルARプラットフォーム",
+  "description": "CityCanvasは、ユーザーがGPS座標にデジタルARコンテンツ（3Dオブジェクト、テキスト、写真）を配置し、他のユーザーがARカメラビューを通じて発見・交流できるUGCプラットフォームです。Three.jsによる3Dレンダリング、Supabase+PostGISによる空間検索、Meshy AIによるテキストから3D生成、PWA対応、Capacitorによるネイティブアプリ化まで対応。サイバーパンク風のダークUIで、都市空間に永続的なデジタルレイヤーを重ねる新しいAR体験を提供します。",
+  "category": "social",
+  "tags": [
+    "AR（拡張現実）",
+    "位置情報",
+    "ユーザー生成コンテンツ",
+    "3Dオブジェクト",
+    "都市探索",
+    "ソーシャル"
+  ],
+  "targetAudience": [
+    "AR・テック系アーリーアダプター",
+    "デジタルコンテンツクリエイター",
+    "都市探索・位置情報ゲーム愛好者",
+    "20〜30代のスマホネイティブ世代"
+  ],
+  "status": "development",
+  "techStack": [
+    "JavaScript",
+    "Three.js",
+    "Mapbox GL JS",
+    "Supabase",
+    "PostGIS",
+    "Capacitor",
+    "Meshy AI",
+    "PWA"
+  ],
+  "platforms": [
+    "web",
+    "mobile"
+  ],
+  "features": [],
+  "promotionKeywords": [
+    "街をARで彩る",
+    "位置情報ARプラットフォーム",
+    "ユーザー生成3Dコンテンツ",
+    "都市をキャンバスに",
+    "ソーシャルAR体験",
+    "リアルワールドUGC"
+  ],
+  "createdAt": "2026-02-24",
+  "updatedAt": "2026-02-24",
+  "order": 0,
+  "featured": false,
+  "autoPromote": true
+}

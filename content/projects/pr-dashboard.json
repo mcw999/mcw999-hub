@@ -1,0 +1,142 @@
+{
+  "slug": "pr-dashboard",
+  "name": "PR Dashboard",
+  "nameJa": "PRダッシュボード",
+  "tagline": "Centralized PR automation dashboard for managing multi-platform content promotion",
+  "taglineJa": "個人プロジェクトのPRコンテンツ生成・投稿を一元管理するデスクトップアプリ",
+  "description": "PR Dashboard is a Tauri-based desktop application that automates the creation and distribution of promotional content for personal software projects. It scans project directories to extract metadata, generates tailored PR content via Claude AI, and publishes to multiple platforms including Twitter, Qiita, Zenn, Dev.to, Reddit, and personal blogs through GitHub Actions workflows.",
+  "descriptionJa": "PRダッシュボードは、個人開発プロジェクトのプロモーションを自動化するTauri製デスクトップアプリです。プロジェクトフォルダをスキャンして技術スタック・カテゴリ・ターゲット層を自動検出し、Claude AIを活用してSNS投稿・技術記事・ブログ記事などのPRコンテンツを生成します。Twitter、Qiita、Zenn、Dev.to、Reddit、個人ブログへの投稿をGitHub Actionsワークフローで一括管理し、アナリティクス・トラフィック分析・投稿スケジュール管理まで対応。mcw999-hubリポジトリをデータストアとして活用し、プロジェクト定義・生成コンテンツ・投稿履歴をすべてGitで管理します。",
+  "category": "saas",
+  "tags": [
+    "PR自動化",
+    "コンテンツ生成",
+    "SNS投稿管理",
+    "Claude AI",
+    "Tauri",
+    "個人開発支援",
+    "マルチプラットフォーム",
+    "GitHub Actions"
+  ],
+  "targetAudience": [
+    "個人開発者",
+    "技術ブロガー",
+    "OSS開発者",
+    "副業エンジニア"
+  ],
+  "status": "development",
+  "techStack": [
+    "React",
+    "TypeScript",
+    "Rust",
+    "Tauri",
+    "Vite",
+    "TailwindCSS",
+    "Recharts"
+  ],
+  "platforms": [
+    "desktop"
+  ],
+  "features": [
+    {
+      "title": "Project Scanner",
+      "titleJa": "プロジェクトスキャナー",
+      "description": "Automatically detects tech stack, category, and metadata from project directories using file analysis or Claude AI",
+      "descriptionJa": "プロジェクトフォルダからpackage.json、Cargo.toml、pubspec.yaml等を解析し、技術スタック・カテゴリ・ターゲット層を自動検出。Claude AIの-pモードによる高精度分析モードも搭載。.pr-meta.jsonがあれば即座に完全なデータを取得"
+    },
+    {
+      "title": "Multi-Platform Publishing",
+      "titleJa": "マルチプラットフォーム投稿",
+      "description": "Triggers GitHub Actions workflows to generate and publish content to Twitter, Qiita, Zenn, Dev.to, Reddit, and blogs",
+      "descriptionJa": "GitHub Actionsワークフローをghコマンド経由でトリガーし、Twitter、Qiita、Zenn、Dev.to、Reddit、ブログへのコンテンツ生成・投稿を一括実行。ワークフローのステップ進捗もリアルタイム表示"
+    },
+    {
+      "title": "Analytics Dashboard",
+      "titleJa": "アナリティクスダッシュボード",
+      "description": "Visualizes post performance metrics, API usage, and GitHub traffic data with interactive charts",
+      "descriptionJa": "各プラットフォームの投稿パフォーマンス（閲覧数・いいね・コメント・ストック）、API使用量、GitHubトラフィックをRechartsで可視化。traffic-history.jsonへの累積保存でGitHub APIの14日制限を回避"
+    },
+    {
+      "title": "Schedule Management",
+      "titleJa": "投稿スケジュール管理",
+      "description": "Configure global and per-project posting schedules with platform-specific slot management",
+      "descriptionJa": "グローバル・プロジェクト別の投稿スケジュールを設定。Twitter用の曜日別マルチスロット、Qiita/Dev.to用の単一スロット、プロジェクト単位でのオーバーライドに対応"
+    },
+    {
+      "title": "Integration Hub",
+      "titleJa": "外部連携管理",
+      "description": "Manages API tokens, validates platform connections via live API calls, and syncs secrets to GitHub repository",
+      "descriptionJa": "各プラットフォームのAPIトークンをtauri-plugin-storeで安全に保管。Qiita・Dev.toは実APIを叩いてユーザー名を取得し接続確認。gh secret setでGitHub Actionsへのシークレット同期も一括実行"
+    }
+  ],
+  "userProblem": "Individual developers spend excessive time manually creating and posting promotional content for their projects across multiple platforms, leading to inconsistent presence and missed opportunities for visibility.",
+  "userProblemJa": "個人開発者が複数プラットフォームへのPRコンテンツ作成・投稿を手作業で行うのは時間がかかり、投稿頻度が不安定になりがち。結果としてプロジェクトの認知度向上の機会を逃してしまう。",
+  "solution": "Automates the entire PR pipeline from project analysis to content generation and multi-platform publishing, with centralized management through a native desktop application.",
+  "solutionJa": "プロジェクト分析からコンテンツ生成、マルチプラットフォーム投稿までのPRパイプライン全体を自動化。ネイティブデスクトップアプリによる一元管理で、最小限の操作で継続的なプロモーションを実現する。",
+  "promotionKeywords": [
+    "個人開発",
+    "PR自動化",
+    "コンテンツ生成",
+    "Claude AI",
+    "Tauri",
+    "SNS運用",
+    "技術記事",
+    "Qiita",
+    "Zenn",
+    "Dev.to"
+  ],
+  "createdAt": "2026-02-24",
+  "updatedAt": "2026-02-24",
+  "order": 0,
+  "featured": false,
+  "schedule": {
+    "frequency": "weekly",
+    "platforms": [
+      "twitter",
+      "zenn",
+      "qiita",
+      "blog",
+      "devto",
+      "reddit"
+    ]
+  },
+  "autoPromote": true,
+  "sourceNotes": {
+    "experiences": [
+      "Claude CLI の -p (print) モードと --permission-mode bypassPermissions を組み合わせることで、プロジェクト分析を完全に非対話で実行できる。ウィンドウも開かず、stdout から直接結果を受け取れる",
+      "Tauri v2 の invoke<T>() はジェネリクスで戻り値の型を指定でき、フロントエンドとRust間の型安全なIPCが実現できる。useApi フックに全 IPC を集約することでメンテナンスコストが激減した",
+      "mcw999-hub リポジトリを Git ベースのデータストアとして使う設計により、GitHub Actions ワークフローとデスクトップアプリが content/projects/*.json と content/meta/*.json を共有データとして読み書きできる",
+      "GitHub Traffic API は直近14日分のデータしか返さない。traffic-history.json に既存データとマージして蓄積する仕組みを作ることで、長期間のトラフィック推移を保持できるようになった",
+      "npm 依存関係から技術スタックを逆引きする方式（react→React、@tailwindcss/vite→TailwindCSS 等14パターン）が思った以上に精度が高い。Flutter の pubspec.yaml の依存関係マッピングも16パターン対応した",
+      "Qiita API は Bearer トークンで /api/v2/authenticated_user を叩くとユーザーIDが返る。Dev.to は api-key ヘッダで /api/users/me。プラットフォームごとに認証方式が異なるので、接続チェックは個別に実装する必要がある",
+      ".pr-meta.json をプロジェクトルートに配置する仕組みを導入したことで、簡易スキャンでも Claude スキャン並みの精度でプロジェクト情報を取得できるようになった。日本語フィールド（nameJa, taglineJa, descriptionJa）はファイルスキャンでは絶対に取れないため、この仕組みが不可欠"
+    ],
+    "observations": [
+      "React のレンダリングで useApi() が毎回新しいオブジェクトを返すと、子コンポーネントの不要な再レンダーを引き起こす。useMemo(() => createApi(), []) でメモ化するだけで解決するが、見落としやすい",
+      "git stash → git pull --ff-only → git stash pop の順序が重要。当初 stash drop にしていたためローカルの作業中変更が消失するバグがあった。refresh_analytics でリモートのデータ取得と同時にローカル変更を保護する必要がある",
+      "カテゴリ推論はキーワードマッチベースで11カテゴリに分類しているが、finance が crypto より先にマッチしないと「budget wallet」のような文字列で誤分類が起きる。キーワード優先順序の設計が重要",
+      "楽観的 UI 更新（toggleAutoPromote 等）は即座にUI反映して体感速度を上げるが、API失敗時に元の状態にロールバック + エラー表示しないと、見た目とサーバー状態が乖離するサイレントバグになる",
+      "Windows で日本語パスを含むディレクトリから Claude CLI を起動するとエンコーディング問題が発生する。PowerShell の Scripting.FileSystemObject で 8.3 短縮パスに変換する回避策が必要",
+      "Zenn は公開 API を提供していないため、接続チェックは不可能。Reddit も API 連携は複雑すぎるため手動投稿を推奨。プラットフォームごとの制約をUIに明示することでユーザーの混乱を防げる",
+      "GitHub Actions ワークフローの is_user_step フィルタで Set up job / Run actions / Post Run / Complete job 等のCI固有ステップを除外することで、ユーザーに意味のあるステップだけを表示できる",
+      "tauri-plugin-store の config.json に api_tokens を保存する設計は手軽だが、トークンがローカルファイルに平文保存される。gh secret set でGitHub側にも同期することで、Actions ワークフローからも安全にアクセスできる"
+    ],
+    "metrics": [
+      "簡易スキャン (.pr-meta.json あり) は 0.5 秒以下で完了。.pr-meta.json なしの推論スキャンも同等。Claude -p モード分析は 30〜120 秒",
+      "Rust 側のビルド: 初回フルビルド約 50 秒、差分ビルドは 20〜30 秒（455 クレート中 1 を再コンパイル）",
+      "対応プラットフォーム: Twitter, Qiita, Dev.to, Blog (GitHub Pages), Zenn (手動), Reddit (手動) の 6 種",
+      "スキャナー対応プロジェクトマーカー: package.json, Cargo.toml, pubspec.yaml, go.mod, pyproject.toml, requirements.txt の 6 種",
+      "カテゴリ 11 種: crypto, saas, tool, platform, finance, game, education, health, social, mobile-app, other",
+      "NPM 依存 → 技術スタック逆引きマッピング: 14 パターン（react, next, vue, svelte, angular, express, tailwindcss, prisma, drizzle-orm, mongoose, socket.io, three, electron, trpc）",
+      "Flutter 依存 → 技術スタック逆引きマッピング: 16 パターン（riverpod, provider, bloc, drift, sqflite, hive, firebase, supabase 等）",
+      "UI ページ数: 10 画面（Setup, Dashboard, ProjectDetail, AddProject, BatchAdd, Analytics, EditProject, PlatformGuide, Integrations, Schedule）",
+      "GitHub Secrets 同期対応トークン: 6 種（QIITA_API_TOKEN, DEVTO_API_KEY, TWITTER_API_KEY/SECRET, TWITTER_ACCESS_TOKEN/SECRET）"
+    ],
+    "failures": [
+      "当初 SendKeys + PowerShell の AppActivate で Claude CLI のターミナルウィンドウを自動操作していた。フォルダ信頼承認→プロンプト貼り付け→Enter送信を固定秒数の Sleep で制御していたが、マシン負荷やCLI起動速度によりタイミングがずれて「分析中」のまま永遠に止まる問題が頻発。claude --print モードへの全面切り替えで完全解決",
+      "ポーリングループのカウンタ計算で retries as u8 * 50 / max_polls as u8 を使っていたが、retries が 6 を超えると u8 (最大値 255) のオーバーフローで panic が発生。進捗表示のためだけの計算がアプリをクラッシュさせていた",
+      "AddProjectPage の「編集してから追加」ボタンが EditProjectPage に遷移する設計だったが、遷移先で get_project(slug) を呼ぶ時点でまだプロジェクトが保存されていないため必ずエラーになる。インライン ProjectForm 表示に切り替えて解決",
+      "フロントエンドの category 型定義が 5 種類 (crypto/saas/tool/platform/other) しかないのに、スキャナーは finance/game/education 等を返すため、UI で undefined として表示されていた。型定義・CATEGORY_LABELS・ProjectCard・ProjectForm・ProjectDetailPage の 5 箇所を一括修正",
+      "Minimized ウィンドウに対して SendKeys を送る設計は根本的に間違いだった。Windows では非アクティブウィンドウへのキー送信が制限されており、AppActivate で一瞬アクティブにしても SendKeys が届かないケースがあった"
+    ]
+  }
+}
