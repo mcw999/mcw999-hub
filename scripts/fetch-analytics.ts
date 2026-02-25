@@ -141,7 +141,15 @@ async function fetchHashnodeMetrics(pat: string): Promise<PostMetrics[]> {
     }
 
     const data = await meRes.json();
+    if (data.errors) {
+      console.error(`Hashnode GraphQL errors: ${JSON.stringify(data.errors)}`);
+    }
     const posts = data?.data?.me?.publications?.edges?.[0]?.node?.posts?.edges || [];
+    if (posts.length === 0) {
+      // デバッグ: レスポンス構造を表示
+      const pubCount = data?.data?.me?.publications?.edges?.length || 0;
+      console.error(`Hashnode debug: ${pubCount} publications found, 0 posts`);
+    }
 
     return posts.map((edge: any) => {
       const p = edge.node;
@@ -253,6 +261,7 @@ async function fetchMastodonMetrics(
     }
 
     const me = await meRes.json();
+    console.error(`Mastodon debug: account @${me.username}, statuses_count=${me.statuses_count}`);
 
     // 自分のステータスを取得
     const statusesRes = await fetch(
@@ -291,48 +300,36 @@ async function fetchMastodonMetrics(
   }
 }
 
-// --- Blog (PVログベース) ---
+// --- Blog (PVログベース: GitHub Traffic API形式) ---
 async function fetchBlogMetrics(): Promise<PostMetrics[]> {
   const trafficPath = path.join(CONTENT_DIR, "meta", "traffic-history.json");
   try {
     const raw = await fs.readFile(trafficPath, "utf-8");
     const traffic = JSON.parse(raw);
 
-    // traffic-history.json の形式に合わせてサマリーを生成
-    if (Array.isArray(traffic)) {
-      return traffic.map((entry: any) => ({
+    // traffic-history.json 形式: { fetchedAt, daily: [{date, count, uniques}], totalViews, totalUniques }
+    if (traffic.daily && Array.isArray(traffic.daily)) {
+      // 日次PVデータをサマリーとして1エントリにまとめる
+      const totalViews = traffic.totalViews || 0;
+      const totalUniques = traffic.totalUniques || 0;
+      const pvDays = traffic.daily.filter((d: any) => d.count > 0);
+
+      return [{
         platform: "blog",
-        title: entry.path || entry.title || "Blog Page",
-        url: entry.url || "",
-        postId: entry.path || "",
+        title: "GitHub Pages (Total)",
+        url: "https://mcw999.github.io/mcw999-hub/",
+        postId: "blog-total",
         slug: "",
-        postedAt: entry.date || "",
-        views: entry.views ?? entry.pv ?? null,
-        likes: 0,
-        comments: 0,
+        postedAt: traffic.fetchedAt?.split("T")[0] || "",
+        views: totalViews,
+        likes: totalUniques, // uniques を likes フィールドで代用
+        comments: pvDays.length, // PVがあった日数
         stocks: null,
         upvoteRatio: null,
-      }));
+      }];
     }
 
-    // オブジェクト形式の場合
-    const entries: PostMetrics[] = [];
-    for (const [pagePath, data] of Object.entries(traffic as Record<string, any>)) {
-      entries.push({
-        platform: "blog",
-        title: pagePath,
-        url: "",
-        postId: pagePath,
-        slug: "",
-        postedAt: "",
-        views: typeof data === "number" ? data : (data?.views ?? data?.pv ?? null),
-        likes: 0,
-        comments: 0,
-        stocks: null,
-        upvoteRatio: null,
-      });
-    }
-    return entries;
+    return [];
   } catch {
     return [];
   }
