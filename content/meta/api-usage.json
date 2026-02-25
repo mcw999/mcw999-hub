@@ -167,6 +167,22 @@
       "model": "claude-sonnet-4-6",
       "inputTokens": 887,
       "outputTokens": 2720
+    },
+    {
+      "date": "2026-02-25T12:05:42.417Z",
+      "platform": "bluesky",
+      "purpose": "Bluesky投稿生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 1018,
+      "outputTokens": 333
+    },
+    {
+      "date": "2026-02-25T12:06:39.837Z",
+      "platform": "qiita",
+      "purpose": "Qiita記事生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 1348,
+      "outputTokens": 4096
     }
   ]
 }

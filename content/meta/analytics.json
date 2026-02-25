@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-02-25T11:37:46.331Z",
+  "fetchedAt": "2026-02-25T12:06:45.180Z",
   "posts": [
     {
       "platform": "qiita",
@@ -60,7 +60,7 @@
       "postId": "3284467",
       "slug": "building-location-based-ar-content-discovery-with-postgis-and-threejs-49m2",
       "postedAt": "2026-02-25",
-      "views": 0,
+      "views": 2,
       "likes": 0,
       "comments": 0,
       "stocks": null,
@@ -169,7 +169,7 @@
     {
       "platform": "devto",
       "totalPosts": 3,
-      "totalViews": 42,
+      "totalViews": 44,
       "totalLikes": 0,
       "totalComments": 0
     },
