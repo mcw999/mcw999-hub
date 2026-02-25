@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-02-25T12:06:45.180Z",
+  "fetchedAt": "2026-02-25T12:14:02.687Z",
   "posts": [
     {
       "platform": "qiita",
@@ -93,6 +93,19 @@
       "upvoteRatio": null
     },
     {
+      "platform": "bluesky",
+      "title": "最近、街歩きしてても「ここに何か置けたら面白いのに」って思う場所がめちゃくちゃ増えてきた。\n\nあの壁、あの橋の下、あの公園の隅っこ。\n\n頭の中でAR的な何かを勝...",
+      "url": "https://bsky.app/profile/mcw999.bsky.social/post/3mfonsagb4i2z",
+      "postId": "at://did:plc:qakr3ufyd75ehaf4pnzfwbaa/app.bsky.feed.post/3mfonsagb4i2z",
+      "slug": "",
+      "postedAt": "2026-02-25",
+      "views": null,
+      "likes": 0,
+      "comments": 0,
+      "stocks": null,
+      "upvoteRatio": null
+    },
+    {
       "platform": "blog",
       "title": "fetchedAt",
       "url": "",
@@ -170,6 +183,13 @@
       "platform": "devto",
       "totalPosts": 3,
       "totalViews": 44,
+      "totalLikes": 0,
+      "totalComments": 0
+    },
+    {
+      "platform": "bluesky",
+      "totalPosts": 1,
+      "totalViews": 0,
       "totalLikes": 0,
       "totalComments": 0
     },
