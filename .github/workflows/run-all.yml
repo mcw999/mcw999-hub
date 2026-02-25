@@ -41,6 +41,7 @@ jobs:
           TARGET_SLUG: ${{ inputs.target_slug }}
           TARGET_PLATFORMS: ${{ inputs.target_platforms }}
         run: npx tsx scripts/auto-generate.ts
+        continue-on-error: true
 
       # Step 2: Qiitaに投稿
       - name: Post to Qiita
@@ -50,6 +51,7 @@ jobs:
           TARGET_SLUG: ${{ inputs.target_slug }}
           TARGET_PLATFORMS: ${{ inputs.target_platforms }}
         run: npx tsx scripts/post-qiita.ts
+        continue-on-error: true
 
       # Step 3: Dev.toにクロスポスト（英語記事を生成・投稿）
       - name: Cross-post to Dev.to
@@ -60,6 +62,7 @@ jobs:
           TARGET_SLUG: ${{ inputs.target_slug }}
           TARGET_PLATFORMS: ${{ inputs.target_platforms }}
         run: npx tsx scripts/post-devto.ts
+        continue-on-error: true
 
       # Step 4: Hashnodeに投稿
       - name: Post to Hashnode
@@ -70,6 +73,7 @@ jobs:
           TARGET_SLUG: ${{ inputs.target_slug }}
           TARGET_PLATFORMS: ${{ inputs.target_platforms }}
         run: npx tsx scripts/post-hashnode.ts
+        continue-on-error: true
 
       # Step 5: Blueskyに投稿
       - name: Post to Bluesky
@@ -80,6 +84,7 @@ jobs:
           TARGET_SLUG: ${{ inputs.target_slug }}
           TARGET_PLATFORMS: ${{ inputs.target_platforms }}
         run: npx tsx scripts/post-bluesky.ts
+        continue-on-error: true
 
       # Step 6: Mastodonに投稿
       - name: Post to Mastodon
@@ -90,6 +95,7 @@ jobs:
           TARGET_SLUG: ${{ inputs.target_slug }}
           TARGET_PLATFORMS: ${{ inputs.target_platforms }}
         run: npx tsx scripts/post-mastodon.ts
+        continue-on-error: true
 
       # Step 7: アナリティクス取得
       - name: Fetch analytics
