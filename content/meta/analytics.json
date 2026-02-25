@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-02-25T12:24:47.710Z",
+  "fetchedAt": "2026-02-25T12:58:01.542Z",
   "posts": [
     {
       "platform": "qiita",
@@ -8,7 +8,7 @@
       "postId": "16b540528f4967c0e9de",
       "slug": "",
       "postedAt": "2026-02-23",
-      "views": 27,
+      "views": 30,
       "likes": 0,
       "comments": 0,
       "stocks": 0,
@@ -21,7 +21,7 @@
       "postId": "9fc2bcc0323617e5fb60",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 31,
+      "views": 35,
       "likes": 0,
       "comments": 1,
       "stocks": 0,
@@ -34,7 +34,7 @@
       "postId": "381946386826b5b4dd50",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 39,
+      "views": 45,
       "likes": 1,
       "comments": 0,
       "stocks": 0,
@@ -47,7 +47,7 @@
       "postId": "d7bc48f92f192d081b92",
       "slug": "",
       "postedAt": "2026-02-22",
-      "views": 118,
+      "views": 120,
       "likes": 0,
       "comments": 1,
       "stocks": 0,
@@ -60,7 +60,7 @@
       "postId": "3284467",
       "slug": "building-location-based-ar-content-discovery-with-postgis-and-threejs-49m2",
       "postedAt": "2026-02-25",
-      "views": 2,
+      "views": 12,
       "likes": 0,
       "comments": 0,
       "stocks": null,
@@ -86,7 +86,7 @@
       "postId": "3276125",
       "slug": "cryptocurrency-market-overheating-and-cooling-detection-system-built-with-nodejs-typescript-gd5",
       "postedAt": "2026-02-22",
-      "views": 20,
+      "views": 21,
       "likes": 0,
       "comments": 0,
       "stocks": null,
@@ -100,73 +100,21 @@
       "slug": "",
       "postedAt": "2026-02-25",
       "views": null,
-      "likes": 0,
+      "likes": 2,
       "comments": 0,
       "stocks": null,
       "upvoteRatio": null
     },
     {
       "platform": "blog",
-      "title": "fetchedAt",
-      "url": "",
-      "postId": "fetchedAt",
+      "title": "GitHub Pages (Total)",
+      "url": "https://mcw999.github.io/mcw999-hub/",
+      "postId": "blog-total",
       "slug": "",
-      "postedAt": "",
-      "views": null,
-      "likes": 0,
-      "comments": 0,
-      "stocks": null,
-      "upvoteRatio": null
-    },
-    {
-      "platform": "blog",
-      "title": "referrers",
-      "url": "",
-      "postId": "referrers",
-      "slug": "",
-      "postedAt": "",
-      "views": null,
-      "likes": 0,
-      "comments": 0,
-      "stocks": null,
-      "upvoteRatio": null
-    },
-    {
-      "platform": "blog",
-      "title": "daily",
-      "url": "",
-      "postId": "daily",
-      "slug": "",
-      "postedAt": "",
-      "views": null,
-      "likes": 0,
-      "comments": 0,
-      "stocks": null,
-      "upvoteRatio": null
-    },
-    {
-      "platform": "blog",
-      "title": "totalViews",
-      "url": "",
-      "postId": "totalViews",
-      "slug": "",
-      "postedAt": "",
+      "postedAt": "2026-02-24",
       "views": 1,
-      "likes": 0,
-      "comments": 0,
-      "stocks": null,
-      "upvoteRatio": null
-    },
-    {
-      "platform": "blog",
-      "title": "totalUniques",
-      "url": "",
-      "postId": "totalUniques",
-      "slug": "",
-      "postedAt": "",
-      "views": 1,
-      "likes": 0,
-      "comments": 0,
+      "likes": 1,
+      "comments": 1,
       "stocks": null,
       "upvoteRatio": null
     }
@@ -175,14 +123,14 @@
     {
       "platform": "qiita",
       "totalPosts": 4,
-      "totalViews": 215,
+      "totalViews": 230,
       "totalLikes": 1,
       "totalComments": 2
     },
     {
       "platform": "devto",
       "totalPosts": 3,
-      "totalViews": 44,
+      "totalViews": 55,
       "totalLikes": 0,
       "totalComments": 0
     },
@@ -190,15 +138,15 @@
       "platform": "bluesky",
       "totalPosts": 1,
       "totalViews": 0,
-      "totalLikes": 0,
+      "totalLikes": 2,
       "totalComments": 0
     },
     {
       "platform": "blog",
-      "totalPosts": 5,
-      "totalViews": 2,
-      "totalLikes": 0,
-      "totalComments": 0
+      "totalPosts": 1,
+      "totalViews": 1,
+      "totalLikes": 1,
+      "totalComments": 1
     }
   ]
 }
