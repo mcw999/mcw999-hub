@@ -1,6 +1,97 @@
 {
-  "fetchedAt": "2026-02-24T21:54:10.605Z",
+  "fetchedAt": "2026-02-25T11:37:46.331Z",
   "posts": [
+    {
+      "platform": "qiita",
+      "title": "【2024年最新】暗号通貨先物の市場過熱検出ツール比較ランキング！冷却タイミングを見極める5つの方法",
+      "url": "https://qiita.com/mcw999/items/16b540528f4967c0e9de",
+      "postId": "16b540528f4967c0e9de",
+      "slug": "",
+      "postedAt": "2026-02-23",
+      "views": 27,
+      "likes": 0,
+      "comments": 0,
+      "stocks": 0,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "qiita",
+      "title": "【2024年最新】暗号通貨自動取引ツールランキング TOP7 - 初心者でも安心して使える厳選ツール",
+      "url": "https://qiita.com/mcw999/items/9fc2bcc0323617e5fb60",
+      "postId": "9fc2bcc0323617e5fb60",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 31,
+      "likes": 0,
+      "comments": 1,
+      "stocks": 0,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "qiita",
+      "title": "【実践解説】暗号通貨先物の自動取引を始める完全ガイド：3ステップで安全な取引環境を構築する方法",
+      "url": "https://qiita.com/mcw999/items/381946386826b5b4dd50",
+      "postId": "381946386826b5b4dd50",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 39,
+      "likes": 1,
+      "comments": 0,
+      "stocks": 0,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "qiita",
+      "title": "Node.js + TypeScriptで構築する暗号通貨市場の過熱冷却検出システム",
+      "url": "https://qiita.com/mcw999/items/d7bc48f92f192d081b92",
+      "postId": "d7bc48f92f192d081b92",
+      "slug": "",
+      "postedAt": "2026-02-22",
+      "views": 118,
+      "likes": 0,
+      "comments": 1,
+      "stocks": 0,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "devto",
+      "title": "Building Location-Based AR Content Discovery with PostGIS and Three.js",
+      "url": "https://dev.to/mcw999/building-location-based-ar-content-discovery-with-postgis-and-threejs-49m2",
+      "postId": "3284467",
+      "slug": "building-location-based-ar-content-discovery-with-postgis-and-threejs-49m2",
+      "postedAt": "2026-02-25",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": null,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "devto",
+      "title": "Building an offline-first budget tracker in Flutter that actually works without internet",
+      "url": "https://dev.to/mcw999/building-an-offline-first-budget-tracker-in-flutter-that-actually-works-without-internet-3ioj",
+      "postId": "3278195",
+      "slug": "building-an-offline-first-budget-tracker-in-flutter-that-actually-works-without-internet-3ioj",
+      "postedAt": "2026-02-23",
+      "views": 22,
+      "likes": 0,
+      "comments": 0,
+      "stocks": null,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "devto",
+      "title": "Cryptocurrency Market Overheating and Cooling Detection System Built with Node.js + TypeScript",
+      "url": "https://dev.to/mcw999/cryptocurrency-market-overheating-and-cooling-detection-system-built-with-nodejs-typescript-gd5",
+      "postId": "3276125",
+      "slug": "cryptocurrency-market-overheating-and-cooling-detection-system-built-with-nodejs-typescript-gd5",
+      "postedAt": "2026-02-22",
+      "views": 20,
+      "likes": 0,
+      "comments": 0,
+      "stocks": null,
+      "upvoteRatio": null
+    },
     {
       "platform": "blog",
       "title": "fetchedAt",
@@ -68,6 +159,20 @@
     }
   ],
   "summaries": [
+    {
+      "platform": "qiita",
+      "totalPosts": 4,
+      "totalViews": 215,
+      "totalLikes": 1,
+      "totalComments": 2
+    },
+    {
+      "platform": "devto",
+      "totalPosts": 3,
+      "totalViews": 42,
+      "totalLikes": 0,
+      "totalComments": 0
+    },
     {
       "platform": "blog",
       "totalPosts": 5,

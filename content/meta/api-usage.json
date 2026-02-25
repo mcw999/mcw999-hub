@@ -135,6 +135,38 @@
       "model": "claude-sonnet-4-6",
       "inputTokens": 613,
       "outputTokens": 2509
+    },
+    {
+      "date": "2026-02-25T11:35:00.888Z",
+      "platform": "zenn",
+      "purpose": "Zenn記事生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 4187,
+      "outputTokens": 4096
+    },
+    {
+      "date": "2026-02-25T11:36:05.392Z",
+      "platform": "qiita",
+      "purpose": "Qiita記事生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 4216,
+      "outputTokens": 4096
+    },
+    {
+      "date": "2026-02-25T11:36:42.765Z",
+      "platform": "blog",
+      "purpose": "ブログ記事生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 3991,
+      "outputTokens": 1967
+    },
+    {
+      "date": "2026-02-25T11:37:42.284Z",
+      "platform": "devto",
+      "purpose": "Dev.to記事生成 (solve-their-problem)",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 887,
+      "outputTokens": 2720
     }
   ]
 }
