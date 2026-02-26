@@ -110,7 +110,7 @@ export async function getAuthorMeta(): Promise<AuthorMeta> {
 
 // --- External Articles (SNS posted logs) ---
 
-const PLATFORM_DIRS = ["devto", "qiita", "reddit", "twitter"] as const;
+const PLATFORM_DIRS = ["devto", "qiita", "zenn", "bluesky", "mastodon", "hashnode"] as const;
 
 export async function getExternalArticles(): Promise<ExternalArticle[]> {
   const articles: ExternalArticle[] = [];

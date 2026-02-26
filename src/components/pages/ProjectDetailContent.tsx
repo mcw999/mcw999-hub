@@ -20,8 +20,9 @@ const PLATFORM_META: Record<string, { label: string; icon: string; color: string
   devto: { label: "Dev.to", icon: "📝", color: "text-foreground" },
   qiita: { label: "Qiita", icon: "📗", color: "text-green-400" },
   zenn: { label: "Zenn", icon: "📘", color: "text-blue-400" },
-  reddit: { label: "Reddit", icon: "🔶", color: "text-orange-400" },
-  twitter: { label: "X / Twitter", icon: "𝕏", color: "text-foreground" },
+  hashnode: { label: "Hashnode", icon: "📓", color: "text-blue-500" },
+  bluesky: { label: "Bluesky", icon: "🦋", color: "text-sky-400" },
+  mastodon: { label: "Mastodon", icon: "🐘", color: "text-purple-400" },
 };
 
 type LucideIconComponent = React.ComponentType<{

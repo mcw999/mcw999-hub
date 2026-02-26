@@ -15,7 +15,9 @@ const EXTERNAL_LINKS = [
   { label: "Qiita", href: "https://qiita.com/mcw999", icon: "qiita" },
   { label: "Dev.to", href: "https://dev.to/mcw999", icon: "devto" },
   { label: "Zenn", href: "https://zenn.dev/mcw999", icon: "zenn" },
-  { label: "X (Twitter)", href: "https://x.com/mcw999", icon: "twitter" },
+  { label: "Hashnode", href: "https://hashnode.com/@mcw999", icon: "hashnode" },
+  { label: "Bluesky", href: "https://bsky.app/profile/mcw999.bsky.social", icon: "bluesky" },
+  { label: "Mastodon", href: "https://mastodon.social/@mcw999", icon: "mastodon" },
 ];
 
 export function Footer() {

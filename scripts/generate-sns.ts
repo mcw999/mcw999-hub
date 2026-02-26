@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import type { ProjectDefinition } from "../src/lib/types";
 import {
-  generateProjectLaunchTweet,
+  generateProjectLaunchPost,
   generateZennArticle,
   generateQiitaArticle,
 } from "../src/lib/sns-generator";
@@ -33,7 +33,7 @@ async function generateForProject(project: ProjectDefinition, types: string[]) {
   const date = new Date().toISOString().split("T")[0];
 
   if (types.includes("twitter") || types.includes("all")) {
-    const tweet = generateProjectLaunchTweet(project);
+    const tweet = generateProjectLaunchPost(project);
     const tweetDir = path.join(CONTENT_DIR, "sns", "twitter");
     await fs.mkdir(tweetDir, { recursive: true });
     const tweetPath = path.join(tweetDir, `${date}-${project.slug}-launch.json`);

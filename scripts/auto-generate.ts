@@ -253,7 +253,7 @@ async function generateBlueskyPosts(
   project: ProjectDefinition
 ): Promise<string[]> {
   const context = projectContextForSNS(project);
-  const blogUrl = blogArticleUrl(project.slug);
+  const blogUrl = blogArticleUrl(project.slug, "bluesky");
 
   const system = `あなたはターゲットユーザーの1人です。同じ悩みや関心を持つ人間として、日常の体験や気づきを投稿します。
 
@@ -319,7 +319,7 @@ async function generateMastodonPosts(
   project: ProjectDefinition
 ): Promise<string[]> {
   const context = projectContextForSNS(project);
-  const blogUrl = blogArticleUrl(project.slug);
+  const blogUrl = blogArticleUrl(project.slug, "mastodon");
 
   const system = `あなたはターゲットユーザーの1人です。同じ悩みや関心を持つ人間として、日常の体験や気づきをMastodonに投稿します。
 
@@ -387,7 +387,7 @@ async function generateHashnodeArticle(
 ): Promise<{ title: string; body: string; tags: string[] }> {
   const context = projectContextFull(project);
   const techContext = projectContextForTech(project);
-  const blogUrl = blogArticleUrl(project.slug);
+  const blogUrl = blogArticleUrl(project.slug, "hashnode");
 
   const system = `You are a software engineer writing a technical blog post for Hashnode. Write in English.
 
@@ -491,7 +491,7 @@ ${codeInstruction}
 - Zennフロントマター形式で始める
 - published: true は必須`;
 
-  const blogUrl = blogArticleUrl(project.slug);
+  const blogUrl = blogArticleUrl(project.slug, "zenn");
 
   const prompt = `以下のアプリのターゲットユーザーになりきって、「${angle.label}」の切り口で記事を書いてください。
 ターゲットが検索しそうなテーマを選び、読者の役に立つ記事にしてください。
@@ -563,7 +563,7 @@ Zennには「${zennAngle?.label || "別の切り口"}」で記事を書いたの
 - 最初の行は「TITLE: 記事タイトル」
 - 2行目は空行、3行目から本文（Markdown形式）`;
 
-  const blogUrl = blogArticleUrl(project.slug);
+  const blogUrl = blogArticleUrl(project.slug, "qiita");
 
   const prompt = `以下のプロジェクトの技術的な内容について、「${angle.label}」の切り口で Qiita 記事を書いてください。
 読者はエンジニアです。具体的なコードと技術的な解説を期待しています。

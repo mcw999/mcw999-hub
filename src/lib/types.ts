@@ -44,7 +44,7 @@ export interface ProjectDefinition {
 
   schedule?: {
     frequency: "weekly" | "biweekly" | "monthly";
-    platforms: ("twitter" | "zenn" | "qiita" | "blog" | "devto" | "reddit")[];
+    platforms: ("twitter" | "zenn" | "qiita" | "blog" | "devto" | "reddit" | "bluesky" | "mastodon" | "hashnode" | "github_releases")[];
   };
 
   createdAt: string;
@@ -79,7 +79,7 @@ export interface BlogPost extends BlogPostMeta {
   content: string;
 }
 
-export interface TwitterPost {
+export interface SNSPost {
   text: string;
   hashtags: string[];
   type: "launch" | "update" | "blog" | "milestone" | "recap";
@@ -100,12 +100,15 @@ export interface AuthorMeta {
     qiita?: string;
     devto?: string;
     website?: string;
+    bluesky?: string;
+    mastodon?: string;
+    hashnode?: string;
   };
   skills: string[];
 }
 
 export interface ExternalArticle {
-  platform: "devto" | "qiita" | "zenn" | "reddit" | "twitter";
+  platform: "devto" | "qiita" | "zenn" | "reddit" | "twitter" | "bluesky" | "mastodon" | "hashnode";
   url: string;
   date: string;
   slug: string;

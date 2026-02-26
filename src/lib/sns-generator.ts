@@ -1,8 +1,8 @@
-import type { ProjectDefinition, BlogPostMeta, TwitterPost } from "./types";
+import type { ProjectDefinition, BlogPostMeta, SNSPost } from "./types";
 
 // --- Twitter/X ---
 
-export function generateProjectLaunchTweet(project: ProjectDefinition): TwitterPost {
+export function generateProjectLaunchPost(project: ProjectDefinition): SNSPost {
   const name = project.nameJa || project.name;
   const tagline = project.taglineJa || project.tagline;
   const features = project.features
@@ -24,10 +24,10 @@ export function generateProjectLaunchTweet(project: ProjectDefinition): TwitterP
   };
 }
 
-export function generateProjectUpdateTweet(
+export function generateProjectUpdatePost(
   project: ProjectDefinition,
   updateDescription: string
-): TwitterPost {
+): SNSPost {
   const name = project.nameJa || project.name;
   const text = `【${name} アップデート】\n\n${updateDescription}`;
 
@@ -40,10 +40,13 @@ export function generateProjectUpdateTweet(
   };
 }
 
-export function generateBlogShareTweet(post: BlogPostMeta, siteUrl: string): TwitterPost {
+export function generateBlogSharePost(post: BlogPostMeta, siteUrl: string, source?: string): SNSPost {
   const title = post.titleJa || post.title;
   const desc = post.descriptionJa || post.description;
-  const url = `${siteUrl}/blog/${post.slug}/`;
+  const baseUrl = `${siteUrl}/blog/${post.slug}/`;
+  const url = source
+    ? `${baseUrl}?utm_source=${source}&utm_medium=social&utm_campaign=blog`
+    : baseUrl;
 
   const text = `ブログを書きました📝\n\n${title}\n\n${desc}\n\n${url}`;
 

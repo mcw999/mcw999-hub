@@ -91,12 +91,13 @@
   "schedule": {
     "frequency": "weekly",
     "platforms": [
-      "twitter",
+      "bluesky",
+      "mastodon",
+      "hashnode",
       "zenn",
       "qiita",
       "blog",
-      "devto",
-      "reddit"
+      "devto"
     ]
   },
   "autoPromote": true,

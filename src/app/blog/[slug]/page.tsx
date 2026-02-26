@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllBlogPosts, getBlogPost } from "@/lib/content";
+import { getAllBlogPosts, getBlogPost, getProject } from "@/lib/content";
 import { compileMdxContent } from "@/lib/mdx";
 import { BlogPostContent } from "@/components/pages/BlogPostContent";
 import { ArticleStructuredData } from "@/components/seo/StructuredData";
@@ -49,6 +49,8 @@ export default async function BlogPostPage({
   const prevPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
   const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
 
+  const relatedProject = post.project ? await getProject(post.project) : null;
+
   return (
     <>
       <ArticleStructuredData
@@ -62,6 +64,7 @@ export default async function BlogPostPage({
         content={content}
         prevPost={prevPost}
         nextPost={nextPost}
+        relatedProject={relatedProject}
       />
     </>
   );

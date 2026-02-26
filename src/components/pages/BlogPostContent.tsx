@@ -15,7 +15,8 @@ import { ScrollReveal } from "@/components/effects/ScrollReveal";
 import { TableOfContents } from "@/components/blog/TableOfContents";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { ShareButtons } from "@/components/blog/ShareButtons";
-import type { BlogPostMeta } from "@/lib/types";
+import { ProjectCTA, ExploreProjectsCTA } from "@/components/blog/ProjectCTA";
+import type { BlogPostMeta, ProjectDefinition } from "@/lib/types";
 import type { ReactNode } from "react";
 
 export function BlogPostContent({
@@ -23,11 +24,13 @@ export function BlogPostContent({
   content,
   prevPost,
   nextPost,
+  relatedProject,
 }: {
   post: BlogPostMeta;
   content: ReactNode;
   prevPost: BlogPostMeta | null;
   nextPost: BlogPostMeta | null;
+  relatedProject?: ProjectDefinition | null;
 }) {
   return (
     <div>
@@ -94,37 +97,14 @@ export function BlogPostContent({
           {content}
         </article>
 
-        {/* Related project */}
-        {post.project && (
-          <ScrollReveal>
-            <div className="mt-16">
-              <Link
-                href={`/projects/${post.project}/`}
-                className="group block"
-              >
-                <SpotlightCard className="p-5">
-                  <div className="relative z-10 flex items-center gap-4">
-                    <div className="p-2.5 rounded-xl bg-accent/10 group-hover:bg-accent/20 transition-colors">
-                      <FolderOpen size={18} className="text-accent" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted mb-0.5">
-                        <T ja="関連プロジェクト" en="Related Project" />
-                      </p>
-                      <span className="text-sm font-semibold text-foreground group-hover:text-accent transition-colors">
-                        {post.project}
-                      </span>
-                    </div>
-                    <ArrowRight
-                      size={16}
-                      className="ml-auto text-muted group-hover:text-accent group-hover:translate-x-1 transition-all"
-                    />
-                  </div>
-                </SpotlightCard>
-              </Link>
-            </div>
-          </ScrollReveal>
-        )}
+        {/* Related project CTA */}
+        <ScrollReveal>
+          {relatedProject ? (
+            <ProjectCTA project={relatedProject} />
+          ) : (
+            <ExploreProjectsCTA />
+          )}
+        </ScrollReveal>
 
         {/* Prev / Next */}
         {(prevPost || nextPost) && (

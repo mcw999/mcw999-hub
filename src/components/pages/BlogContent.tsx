@@ -142,7 +142,7 @@ export function BlogContent({ posts }: { posts: BlogPostMeta[] }) {
                               </span>
                             )}
                             {post.project && (
-                              <span className="flex items-center gap-1">
+                              <span className="flex items-center gap-1 text-accent font-medium">
                                 <FolderOpen size={12} />
                                 {post.project}
                               </span>

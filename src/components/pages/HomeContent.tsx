@@ -24,8 +24,9 @@ const PLATFORM_META: Record<string, { label: string; icon: string }> = {
   devto: { label: "Dev.to", icon: "📝" },
   qiita: { label: "Qiita", icon: "📗" },
   zenn: { label: "Zenn", icon: "📘" },
-  reddit: { label: "Reddit", icon: "🔶" },
-  twitter: { label: "X", icon: "𝕏" },
+  hashnode: { label: "Hashnode", icon: "📓" },
+  bluesky: { label: "Bluesky", icon: "🦋" },
+  mastodon: { label: "Mastodon", icon: "🐘" },
   github: { label: "GitHub", icon: "🐙" },
 };
 

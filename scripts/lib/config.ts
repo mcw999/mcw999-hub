@@ -43,13 +43,17 @@ export const ARTICLES_DIR = path.join(process.cwd(), "articles");
 const SITE_BASE = "https://mcw999.github.io/mcw999-hub";
 
 /** ブログ記事のURL（ハブ導線用） */
-export function blogArticleUrl(projectSlug: string): string {
-  return `${SITE_BASE}/blog/${projectSlug}-guide/`;
+export function blogArticleUrl(projectSlug: string, source?: string): string {
+  const base = `${SITE_BASE}/blog/${projectSlug}-guide/`;
+  if (!source) return base;
+  return `${base}?utm_source=${source}&utm_medium=referral&utm_campaign=${projectSlug}`;
 }
 
 /** プロジェクト詳細ページのURL */
-export function projectPageUrl(projectSlug: string): string {
-  return `${SITE_BASE}/projects/${projectSlug}/`;
+export function projectPageUrl(projectSlug: string, source?: string): string {
+  const base = `${SITE_BASE}/projects/${projectSlug}/`;
+  if (!source) return base;
+  return `${base}?utm_source=${source}&utm_medium=referral&utm_campaign=${projectSlug}`;
 }
 
 export async function readProjectFiles() {
