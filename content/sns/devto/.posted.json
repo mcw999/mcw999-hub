@@ -12,5 +12,12 @@
     "url": "https://dev.to/mcw999/building-location-based-ar-content-discovery-with-postgis-and-threejs-49m2",
     "postedAt": "2026-02-25",
     "slug": "city-canvas"
+  },
+  {
+    "filename": "How I stopped manually posting to 6 platforms and built an automated PR pipeline for my side projects",
+    "postId": "3299393",
+    "url": "https://dev.to/mcw999/how-i-stopped-manually-posting-to-6-platforms-and-built-an-automated-pr-pipeline-for-my-side-14lk",
+    "postedAt": "2026-03-01",
+    "slug": "pr-dashboard"
   }
 ]
