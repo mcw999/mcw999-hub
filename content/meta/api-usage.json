@@ -279,6 +279,70 @@
       "model": "claude-sonnet-4-6",
       "inputTokens": 3832,
       "outputTokens": 3110
+    },
+    {
+      "date": "2026-03-15T23:56:19.554Z",
+      "platform": "bluesky",
+      "purpose": "Bluesky投稿生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 1062,
+      "outputTokens": 367
+    },
+    {
+      "date": "2026-03-15T23:56:33.409Z",
+      "platform": "mastodon",
+      "purpose": "Mastodon投稿生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 1093,
+      "outputTokens": 541
+    },
+    {
+      "date": "2026-03-15T23:57:56.157Z",
+      "platform": "hashnode",
+      "purpose": "Hashnode記事生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 845,
+      "outputTokens": 4080
+    },
+    {
+      "date": "2026-03-15T23:59:00.437Z",
+      "platform": "zenn",
+      "purpose": "Zenn記事生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 1277,
+      "outputTokens": 2987
+    },
+    {
+      "date": "2026-03-16T00:00:02.046Z",
+      "platform": "qiita",
+      "purpose": "Qiita記事生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 1393,
+      "outputTokens": 4096
+    },
+    {
+      "date": "2026-03-16T00:00:40.918Z",
+      "platform": "blog",
+      "purpose": "ブログ記事生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 1072,
+      "outputTokens": 1874
+    },
+    {
+      "date": "2026-03-16T00:01:17.257Z",
+      "platform": "blog",
+      "purpose": "ブログ記事再生成",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 1160,
+      "outputTokens": 1775
+    },
+    {
+      "date": "2026-03-16T00:02:20.566Z",
+      "platform": "devto",
+      "purpose": "Dev.to記事生成 (what-i-learned)",
+      "model": "claude-sonnet-4-6",
+      "inputTokens": 900,
+      "outputTokens": 2565
     }
   ]
 }

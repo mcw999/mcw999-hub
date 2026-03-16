@@ -1,6 +1,19 @@
 {
-  "fetchedAt": "2026-03-01T23:55:23.815Z",
+  "fetchedAt": "2026-03-16T00:02:25.821Z",
   "posts": [
+    {
+      "platform": "qiita",
+      "title": "Supabase+PostGISで半径検索APIを構築し、Three.jsのARビューにリアルタイム反映する実装手順",
+      "url": "https://qiita.com/mcw999/items/32f01842c3ff02c9a378",
+      "postId": "32f01842c3ff02c9a378",
+      "slug": "",
+      "postedAt": "2026-03-16",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "stocks": 0,
+      "upvoteRatio": null
+    },
     {
       "platform": "qiita",
       "title": "Three.jsとPostGISで位置情報ARアプリを作るときにハマった5つのポイントと解決策",
@@ -8,7 +21,7 @@
       "postId": "b91f52f78b4585684357",
       "slug": "",
       "postedAt": "2026-03-02",
-      "views": 0,
+      "views": 25,
       "likes": 0,
       "comments": 0,
       "stocks": 0,
@@ -21,7 +34,7 @@
       "postId": "1422584e01dace52080f",
       "slug": "",
       "postedAt": "2026-02-28",
-      "views": 90,
+      "views": 196,
       "likes": 0,
       "comments": 0,
       "stocks": 0,
@@ -34,8 +47,8 @@
       "postId": "3299393",
       "slug": "how-i-stopped-manually-posting-to-6-platforms-and-built-an-automated-pr-pipeline-for-my-side-14lk",
       "postedAt": "2026-03-01",
-      "views": 0,
-      "likes": 0,
+      "views": 1,
+      "likes": 1,
       "comments": 0,
       "stocks": null,
       "upvoteRatio": null
@@ -60,7 +73,7 @@
       "postId": "3278195",
       "slug": "building-an-offline-first-budget-tracker-in-flutter-that-actually-works-without-internet-3ioj",
       "postedAt": "2026-02-23",
-      "views": 34,
+      "views": 44,
       "likes": 0,
       "comments": 0,
       "stocks": null,
@@ -73,8 +86,21 @@
       "postId": "3276125",
       "slug": "cryptocurrency-market-overheating-and-cooling-detection-system-built-with-nodejs-typescript-gd5",
       "postedAt": "2026-02-22",
-      "views": 24,
-      "likes": 1,
+      "views": 27,
+      "likes": 3,
+      "comments": 0,
+      "stocks": null,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "bluesky",
+      "title": "散歩中にふと「ここに何か置けたら面白いのに」って思う瞬間ない？\n\n古い商店街の壁とか、\n誰も気にしない公園の角とか。\n\n「この場所、なんかポテンシャルある気がす...",
+      "url": "https://bsky.app/profile/mcw999.bsky.social/post/3mh55ritwsk2r",
+      "postId": "at://did:plc:qakr3ufyd75ehaf4pnzfwbaa/app.bsky.feed.post/3mh55ritwsk2r",
+      "slug": "",
+      "postedAt": "2026-03-16",
+      "views": null,
+      "likes": 0,
       "comments": 0,
       "stocks": null,
       "upvoteRatio": null
@@ -120,6 +146,19 @@
     },
     {
       "platform": "mastodon",
+      "title": "最近、街歩きしてるとき「このビルの壁に何か描けたらな」ってぼんやり思うことが増えた。現実には当然できないんだけど、ARでそれが実現できる時代になってきてるの、じ...",
+      "url": "https://mastodon.social/@mcw999/116235917338327674",
+      "postId": "116235917338327674",
+      "slug": "",
+      "postedAt": "2026-03-16",
+      "views": null,
+      "likes": 0,
+      "comments": 0,
+      "stocks": null,
+      "upvoteRatio": null
+    },
+    {
+      "platform": "mastodon",
       "title": "最近、歩いてる街がなんか「素通りする場所」になってるなって感じることが増えた。毎日同じ道なのに、何も引っかかりがない。ポケモンGOとかイングレスにハマってた頃っ...",
       "url": "https://mastodon.social/@mcw999/116156617341385819",
       "postId": "116156617341385819",
@@ -148,28 +187,28 @@
   "summaries": [
     {
       "platform": "qiita",
-      "totalPosts": 2,
-      "totalViews": 90,
+      "totalPosts": 3,
+      "totalViews": 221,
       "totalLikes": 0,
       "totalComments": 0
     },
     {
       "platform": "devto",
       "totalPosts": 4,
-      "totalViews": 70,
-      "totalLikes": 1,
+      "totalViews": 84,
+      "totalLikes": 4,
       "totalComments": 0
     },
     {
       "platform": "bluesky",
-      "totalPosts": 3,
+      "totalPosts": 4,
       "totalViews": 0,
       "totalLikes": 2,
       "totalComments": 0
     },
     {
       "platform": "mastodon",
-      "totalPosts": 1,
+      "totalPosts": 2,
       "totalViews": 0,
       "totalLikes": 0,
       "totalComments": 0
